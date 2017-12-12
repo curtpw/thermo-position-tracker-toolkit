@@ -1,0 +1,978 @@
+<!doctype html>
+<!-- The DOCTYPE declaration above will set the     -->
+<!-- browser's rendering engine into                -->
+<!-- "Standards Mode". Replacing this declaration   -->
+<!-- with a "Quirks Mode" doctype is not supported. -->
+
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+    <!--                                                               -->
+    <!-- Consider inlining CSS to reduce the number of requested files -->
+    <!--                                                               -->
+    <link type="text/css" rel="stylesheet" href="PoseEditor.css">
+
+    <!--                                           -->
+    <!-- Any title is fine                         -->
+    <!--                                           -->
+    <title>GWT Pose Editor</title>
+
+    <!--                                           -->
+    <!-- This script loads your compiled module.   -->
+    <!-- If you add any GWT meta tags, they must   -->
+    <!-- be added before this line.                -->
+    <!--                                           -->
+    <script type="text/javascript" language="javascript" src="three.min.js"></script>
+    <script type="text/javascript" language="javascript" src="stats.min.js"></script>
+
+    <script type="text/javascript" language="javascript" src="poseeditor/poseeditor.nocache2.js"></script>
+  <!--  <script defer="defer">
+        poseeditor.onInjectionDone('poseeditor')
+    </script> -->
+
+    <script type="text/javascript" src="js/LZWEncoder.js"></script>
+    <script type="text/javascript" src="js/NeuQuant.js"></script>
+    <script type="text/javascript" src="js/GIFEncoder.js"></script>
+    <style id="holderjs-style" type="text/css"></style>
+    <link rel="stylesheet" href="http://okgab.com/pose/poseeditor/gwt/clean/clean.css">
+    <style>
+        .GPBYFDEH {
+            position: relative;
+            display: inline-block;
+        }
+    </style>
+</head>
+
+<!--                                           -->
+<!-- The body can have arbitrary html, or      -->
+<!-- you can leave the body empty if you want  -->
+<!-- to create a completely dynamic UI.        -->
+<!--                                           -->
+
+<body class=" __plain_text_READY__">
+
+    <!-- OPTIONAL: include this if you want history support -->
+    <!-- 
+    <iframe src="javascript:''" id="__gwt_historyFrame" tabIndex='-1' style="position:absolute;width:0;height:0;border:0"></iframe>
+     -->
+    <!-- RECOMMENDED if your web app will not function without JavaScript enabled -->
+    <noscript>
+        &lt;div style="width: 22em; position: absolute; left: 50%; margin-left: -11em; color: red; background-color: white; border: 1px solid red; padding: 4px; font-family: sans-serif"&gt; Your web browser must have JavaScript enabled in order for this application to display correctly. &lt;/div&gt;
+    </noscript>
+
+
+
+
+    <iframe src="javascript:''" id="poseeditor" tabindex="-1" style="position: absolute; width: 0px; height: 0px; border: none;"></iframe>
+    <div aria-hidden="true" style="position: absolute; z-index: -32767; top: -20cm; width: 10cm; height: 10cm; visibility: hidden;">&nbsp;</div>
+    <div style="position: absolute; left: 0px; top: 0px; right: 0px; bottom: 0px;">
+        <div aria-hidden="true" style="position: absolute; z-index: -32767; top: -20ex; width: 10em; height: 10ex; visibility: hidden;">&nbsp;</div>
+        <div style="position: absolute; overflow: hidden; left: 0px; top: 0px; right: 0px; bottom: 0px;">
+            <div class="gwt-TabLayoutPanel" style="position: absolute; left: 0px; top: 0px; right: 0px; bottom: 0px;">
+                <div aria-hidden="true" style="position: absolute; z-index: -32767; top: -20ex; width: 10em; height: 10ex; visibility: hidden;">&nbsp;</div>
+                <div style="position: absolute; overflow: hidden; left: 0px; top: 0px; right: 0px; height: 24px;">
+                    <div class="gwt-TabLayoutPanelTabs" style="position: absolute; left: 0px; right: 0px; bottom: 0px; width: 16384px;">
+                        <div class="gwt-TabLayoutPanelTab GPBYFDEH gwt-TabLayoutPanelTab-selected">
+                            <div class="gwt-TabLayoutPanelTabInner">
+                                <div class="gwt-Label">Editor</div>
+                            </div>
+                        </div>
+                        <div class="gwt-TabLayoutPanelTab GPBYFDEH">
+                            <div class="gwt-TabLayoutPanelTabInner">
+                                <div class="gwt-Label">Motion &amp; Pose</div>
+                            </div>
+                        </div>
+                        <div class="gwt-TabLayoutPanelTab GPBYFDEH">
+                            <div class="gwt-TabLayoutPanelTabInner">
+                                <div class="gwt-Label">Model &amp; Texture</div>
+                            </div>
+                        </div>
+                        <div class="gwt-TabLayoutPanelTab GPBYFDEH">
+                            <div class="gwt-TabLayoutPanelTabInner">
+                                <div class="gwt-Label">About</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style="position: absolute; overflow: hidden; left: 0px; top: 24px; right: 0px; bottom: 0px;">
+                    <div class="gwt-TabLayoutPanelContentContainer" style="position: absolute; left: 0px; top: 0px; right: 0px; bottom: 0px;">
+                        <div aria-hidden="true" style="position: absolute; z-index: -32767; top: -20ex; width: 10em; height: 10ex; visibility: hidden;">&nbsp;</div>
+                        <div style="position: absolute; overflow: hidden; left: 0%; top: 0%; width: 100%; height: 100%;">
+                            <canvas width="1519" height="379" aria-hidden="false" tabindex="0" class="gwt-TabLayoutPanelContent" style="width: 1519px; height: 379px; position: absolute; left: 0px; top: 0px; right: 0px; bottom: 0px; background-color: rgb(51, 51, 51);"></canvas>
+                        </div>
+                        <div style="position: absolute; overflow: hidden; left: 100%; top: 0%; width: 100%; height: 100%; display: none;">
+                            <table cellspacing="0" cellpadding="0" aria-hidden="true" class="gwt-TabLayoutPanelContent" style="position: absolute; left: 0px; top: 0px; right: 0px; bottom: 0px; display: none;">
+                                <tbody>
+                                    <tr>
+                                        <td align="left" style="vertical-align: top;">
+                                            <table cellspacing="0" cellpadding="0">
+                                                <tbody>
+                                                    <tr>
+                                                        <td align="left" style="vertical-align: top;">
+                                                            <div class="gwt-Label">Import BVH</div>
+                                                        </td>
+                                                        <td align="left" style="vertical-align: top;">
+                                                            <form>
+                                                                <table cellspacing="0" cellpadding="0" border="0" class="html5dragOverBorder">
+                                                                    <tbody>
+                                                                        <tr>
+                                                                            <td align="left" style="vertical-align: top;">
+                                                                                <input type="file" class="gwt-FileUpload" accept=".bvh">
+                                                                            </td>
+                                                                        </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="left" style="vertical-align: top;">
+                                            <div style="overflow: auto; position: relative; zoom: 1; width: 800px; height: 500px;">
+                                                <div style="position: relative; zoom: 1;">
+                                                    <table cellspacing="0" cellpadding="0">
+                                                        <tbody></tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div style="position: absolute; overflow: hidden; display: none; left: 0px; top: 0px; right: 0px; bottom: 0px;">
+                            <table cellspacing="0" cellpadding="0" aria-hidden="true" class="gwt-TabLayoutPanelContent" style="position: absolute; left: 0px; top: 0px; right: 0px; bottom: 0px; display: none;">
+                                <tbody>
+                                    <tr>
+                                        <td align="left" style="vertical-align: top;">
+                                            <table cellspacing="0" cellpadding="0">
+                                                <tbody>
+                                                    <tr>
+                                                        <td align="left" style="vertical-align: top;">
+                                                            <div class="gwt-Label" style="width: 150px;">Model(three.json include bone)</div>
+                                                        </td>
+                                                        <td align="left" style="vertical-align: top;">
+                                                            <button type="button" class="gwt-Button">Update</button>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="left" style="vertical-align: top;">
+                                            <form>
+                                                <table cellspacing="0" cellpadding="0" border="0" class="html5dragOverBorder">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td align="left" style="vertical-align: top;">
+                                                                <input type="file" class="gwt-FileUpload">
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="left" style="vertical-align: top;">
+                                            <div class="gwt-Label">Selection:model001_female2661_bone19</div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="left" style="vertical-align: top;">
+                                            <select class="gwt-ListBox" size="5" style="width: 300px;">
+                                                <option value="-1">model001_female2661_bone19</option>
+                                                <option value="-2">model001_proxy1487_bone19</option>
+                                                <option value="-3">model001_female2548_bone19</option>
+                                                <option value="-4">model001_proxy837_bone19</option>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="left" style="vertical-align: top;">
+                                            <table cellspacing="0" cellpadding="0">
+                                                <tbody>
+                                                    <tr>
+                                                        <td align="left" style="vertical-align: top;">
+                                                            <button type="button" class="gwt-Button">Load</button>
+                                                        </td>
+                                                        <td align="left" style="vertical-align: top;">
+                                                            <button type="button" class="gwt-Button">Remove</button>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="left" style="vertical-align: top;">
+                                            <div class="gwt-Label">Texture</div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="left" style="vertical-align: top;">
+                                            <form>
+                                                <table cellspacing="0" cellpadding="0" border="0" class="html5dragOverBorder">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td align="left" style="vertical-align: top;">
+                                                                <input type="file" class="gwt-FileUpload">
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="left" style="vertical-align: top;">
+                                            <div class="gwt-Label">Selection:blondhair_tshirt</div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="left" style="vertical-align: top;">
+                                            <select class="gwt-ListBox" size="5" style="width: 300px;">
+                                                <option value="-1">blondhair_tshirt</option>
+                                                <option value="-2">asian_blondhair_tshirt</option>
+                                                <option value="-3">asian_blackhair_tshirt</option>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="left" style="vertical-align: top;">
+                                            <table cellspacing="0" cellpadding="0">
+                                                <tbody>
+                                                    <tr>
+                                                        <td align="left" style="vertical-align: top;">
+                                                            <button type="button" class="gwt-Button">Load</button>
+                                                        </td>
+                                                        <td align="left" style="vertical-align: top;">
+                                                            <button type="button" class="gwt-Button">Remove</button>
+                                                        </td>
+                                                        <td align="left" style="vertical-align: top;">
+                                                            <button type="button" class="gwt-Button">Export</button>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div style="position: absolute; overflow: hidden; display: none; left: 0px; top: 0px; right: 0px; bottom: 0px;">
+                            <table cellspacing="0" cellpadding="0" aria-hidden="true" class="gwt-TabLayoutPanelContent" style="position: absolute; left: 0px; top: 0px; right: 0px; bottom: 0px; display: none;">
+                                <tbody>
+                                    <tr>
+                                        <td align="left" style="vertical-align: top;">
+                                            <div class="gwt-HTML">
+                                                <br>[Howto Move]
+                                                <br><b>Select Nothing:</b>
+                                                <br>Mouse Drag=Cammera Rotatation-XY
+                                                <br>Mouse Wheel= Zoom
+                                                <br> +ALT Move-XY Camera
+                                                <br>
+                                                <br><b>Select IK(Green Box):</b>
+                                                <br>Mouse Drag=Move IK-XYZ
+                                                <br>Mouse Wheel=Move IK-Z
+                                                <br>+ALT=smoth-change
+                                                <br>+Shift=Move Only
+                                                <br>+ALT+Shift Follow other IK
+                                                <br>
+                                                <br><b>Select Bone(Red Box):</b>
+                                                <br>Mouse Drag=Rotate-XY
+                                                <br>Mouse Wheel=Rotate-Z
+                                                <br>
+                                                <br><b>Select Root(Red Large Box):</b>
+                                                <br>Mouse Drag=Rotate-XYZ
+                                                <br>Mouse Wheel=Rotate-Z +ALT=Follow IK +Shift=Move Position
+                                                <br>
+                                                <br>yello box means under Y:0,orange box means near Y:0
+                                                <br>On IK-Moving switching normal &amp; +Alt(Smooth) is good tactics.
+                                                <br><a href="http://webgl.akjava.com">More info at webgl.akjava.com</a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="stats" style="width: 80px; opacity: 0.9; cursor: pointer; position: absolute; left: 0px; top: 30px; visibility: visible;">
+        <div id="fps" style="padding: 0px 0px 3px 3px; text-align: left; background-color: rgb(0, 0, 34);">
+            <div id="fpsText" style="color: rgb(0, 255, 255); font-family: Helvetica, Arial, sans-serif; font-size: 9px; font-weight: bold; line-height: 15px;">62 FPS (1-64)</div>
+            <div id="fpsGraph" style="position: relative; width: 74px; height: 30px; background-color: rgb(0, 255, 255);"><span style="width: 1px; height: 11.4px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.7px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.4px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.4px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.4px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.4px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.4px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.4px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.4px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.4px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.4px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.4px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.7px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.4px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.4px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 26.7px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 29.7px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 29.7px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 29.7px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 29.7px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 29.7px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 29.7px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 29.7px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 27.9px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.4px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.4px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.4px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.4px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.4px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.4px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.1px; float: left; background-color: rgb(17, 17, 51);"></span><span style="width: 1px; height: 11.4px; float: left; background-color: rgb(17, 17, 51);"></span>
+            </div>
+        </div>
+        <div id="ms" style="padding: 0px 0px 3px 3px; text-align: left; background-color: rgb(0, 34, 0); display: none;">
+            <div id="msText" style="color: rgb(0, 255, 0); font-family: Helvetica, Arial, sans-serif; font-size: 9px; font-weight: bold; line-height: 15px;">16 MS (1-1044)</div>
+            <div id="msGraph" style="position: relative; width: 74px; height: 30px; background-color: rgb(0, 255, 0);"><span style="width: 1px; height: 27.6px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.6px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.6px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.75px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.6px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.45px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.45px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.6px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.45px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.45px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.45px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.45px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.45px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.45px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.75px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.45px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 28.8px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.45px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.75px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.6px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.45px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.6px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.45px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.75px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.6px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.45px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.75px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.6px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.6px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.6px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.6px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.45px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.6px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.3px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.75px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.45px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.45px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.6px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.3px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 28.5px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.75px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.6px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.6px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.45px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.75px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.6px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.6px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.45px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.6px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.6px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.6px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.45px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.6px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.75px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.6px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.6px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.45px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.45px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.75px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.45px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.45px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.45px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.6px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.45px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 28.35px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.6px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.75px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.45px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.75px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.45px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.75px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.45px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.6px; float: left; background-color: rgb(17, 51, 17);"></span><span style="width: 1px; height: 27.6px; float: left; background-color: rgb(17, 51, 17);"></span>
+            </div>
+        </div>
+    </div>
+    <div class="gwt-PopupPanel" style="left: 0px; top: 271px; visibility: visible; position: absolute; overflow: visible;">
+        <div class="popupContent">
+            <table cellspacing="0" cellpadding="0" style="height: 96px; width: 650px;">
+                <tbody>
+                    <tr>
+                        <td align="left" style="vertical-align: top;">
+                            <table cellspacing="0" cellpadding="0">
+                                <tbody>
+                                    <tr>
+                                        <td align="left" style="vertical-align: top;">
+                                            <select class="gwt-ListBox">
+                                                <option value="Untitled1">Untitled1</option>
+                                            </select>
+                                        </td>
+                                        <td align="left" style="vertical-align: top;">
+                                            <button type="button" class="gwt-Button">New</button>
+                                        </td>
+                                        <td align="left" style="vertical-align: top;">
+                                            <button type="button" class="gwt-Button">Save</button>
+                                        </td>
+                                        <td align="left" style="vertical-align: top;">
+                                            <button type="button" class="gwt-Button">SaveAs</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="left" style="vertical-align: top;">
+                            <table cellspacing="0" cellpadding="0">
+                                <tbody>
+                                    <tr>
+                                        <td align="left" style="vertical-align: middle;">
+                                            <button type="button" class="gwt-Button">Add</button>
+                                        </td>
+                                        <td align="left" style="vertical-align: middle;">
+                                            <button type="button" class="gwt-Button">Replace</button>
+                                        </td>
+                                        <td align="left" style="vertical-align: middle;">
+                                            <button type="button" class="gwt-Button">Copy</button>
+                                        </td>
+                                        <td align="left" style="vertical-align: middle;">
+                                            <button type="button" class="gwt-Button">Paste</button>
+                                        </td>
+                                        <td align="left" style="vertical-align: middle;">
+                                            <button type="button" class="gwt-Button">Remove</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="left" style="vertical-align: top;">
+                            <table cellspacing="0" cellpadding="0">
+                                <tbody>
+                                    <tr>
+                                        <td align="left" style="vertical-align: middle;">
+                                            <div tabindex="0">
+                                                <input type="text" tabindex="-1" role="presentation" style="opacity: 0; height: 1px; width: 1px; z-index: -1; overflow: hidden; position: absolute;">
+                                                <input type="range" min="0" max="0" style="width: 420px;">
+                                            </div>
+                                        </td>
+                                        <td align="left" style="vertical-align: middle;">
+                                            <button type="button" class="gwt-Button">Prev</button>
+                                        </td>
+                                        <td align="left" style="vertical-align: middle;">
+                                            <button type="button" class="gwt-Button">Next</button>
+                                        </td>
+                                        <td align="left" style="vertical-align: middle;">
+                                            <div class="gwt-Label" style="width: 40px;">1/1</div>
+                                        </td>
+                                        <td align="left" style="vertical-align: middle;">
+                                            <button type="button" class="gwt-Button">First</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="gwt-PopupPanel" style="left: 1236px; top: 0px; position: absolute; overflow: visible;">
+        <div class="popupContent">
+            <table cellspacing="2" cellpadding="0">
+                <tbody>
+                    <tr>
+                        <td align="left" style="vertical-align: top;">
+                            <div class="title">Control</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="left" style="vertical-align: top;">
+                            <table cellspacing="0" cellpadding="0" style="width: 100%;">
+                                <tbody>
+                                    <tr>
+                                        <td align="right" style="vertical-align: top;">
+                                            <button type="button" class="gwt-Button" aria-hidden="false" style="">Hide Control</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="left" style="vertical-align: top;">
+                            <table cellspacing="0" cellpadding="0" aria-hidden="false" style="">
+                                <tbody>
+                                    <tr>
+                                        <td align="left" style="vertical-align: top;">
+                                            <div class="title">X-Rotate:34</div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="left" style="vertical-align: top;">
+                                            <table cellspacing="0" cellpadding="0">
+                                                <tbody>
+                                                    <tr>
+                                                        <td align="left" style="vertical-align: top;">
+                                                            <div tabindex="0">
+                                                                <input type="text" tabindex="-1" role="presentation" style="opacity: 0; height: 1px; width: 1px; z-index: -1; overflow: hidden; position: absolute;">
+                                                                <input type="range" min="-180" max="180">
+                                                            </div>
+                                                        </td>
+                                                        <td align="left" style="vertical-align: top;">
+                                                            <button type="button" class="gwt-Button">Reset</button>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="left" style="vertical-align: top;">
+                                            <div class="title">Y-Rotate:-172</div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="left" style="vertical-align: top;">
+                                            <table cellspacing="0" cellpadding="0">
+                                                <tbody>
+                                                    <tr>
+                                                        <td align="left" style="vertical-align: top;">
+                                                            <div tabindex="0">
+                                                                <input type="text" tabindex="-1" role="presentation" style="opacity: 0; height: 1px; width: 1px; z-index: -1; overflow: hidden; position: absolute;">
+                                                                <input type="range" min="-180" max="180">
+                                                            </div>
+                                                        </td>
+                                                        <td align="left" style="vertical-align: top;">
+                                                            <button type="button" class="gwt-Button">Reset</button>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="left" style="vertical-align: top;">
+                                            <div class="title">Z-Rotate:-5</div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="left" style="vertical-align: top;">
+                                            <table cellspacing="0" cellpadding="0">
+                                                <tbody>
+                                                    <tr>
+                                                        <td align="left" style="vertical-align: top;">
+                                                            <div tabindex="0">
+                                                                <input type="text" tabindex="-1" role="presentation" style="opacity: 0; height: 1px; width: 1px; z-index: -1; overflow: hidden; position: absolute;">
+                                                                <input type="range" min="-180" max="180">
+                                                            </div>
+                                                        </td>
+                                                        <td align="left" style="vertical-align: top;">
+                                                            <button type="button" class="gwt-Button">Reset</button>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="left" style="vertical-align: top;">
+                                            <div class="title">X-Position:0</div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="left" style="vertical-align: top;">
+                                            <table cellspacing="0" cellpadding="0">
+                                                <tbody>
+                                                    <tr>
+                                                        <td align="left" style="vertical-align: top;">
+                                                            <div tabindex="0">
+                                                                <input type="text" tabindex="-1" role="presentation" style="opacity: 0; height: 1px; width: 1px; z-index: -1; overflow: hidden; position: absolute;">
+                                                                <input type="range" min="-300" max="300">
+                                                            </div>
+                                                        </td>
+                                                        <td align="left" style="vertical-align: top;">
+                                                            <button type="button" class="gwt-Button">Reset</button>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="left" style="vertical-align: top;">
+                                            <div class="title">Y-Position:-4</div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="left" style="vertical-align: top;">
+                                            <table cellspacing="0" cellpadding="0">
+                                                <tbody>
+                                                    <tr>
+                                                        <td align="left" style="vertical-align: top;">
+                                                            <div tabindex="0">
+                                                                <input type="text" tabindex="-1" role="presentation" style="opacity: 0; height: 1px; width: 1px; z-index: -1; overflow: hidden; position: absolute;">
+                                                                <input type="range" min="-300" max="300">
+                                                            </div>
+                                                        </td>
+                                                        <td align="left" style="vertical-align: top;">
+                                                            <button type="button" class="gwt-Button">Reset</button>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="left" style="vertical-align: top;"><span class="gwt-CheckBox"><input type="checkbox" value="on" id="gwt-uid-1" tabindex="0"><label for="gwt-uid-1">transparent</label></span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="left" style="vertical-align: top;"><span class="gwt-CheckBox"><input type="checkbox" value="on" id="gwt-uid-2" tabindex="0"><label for="gwt-uid-2">BasicMaterial</label></span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="left" style="vertical-align: top;">
+                                            <table cellspacing="0" cellpadding="0">
+                                                <tbody>
+                                                    <tr>
+                                                        <td align="left" style="vertical-align: top;"><span class="gwt-CheckBox"><input type="checkbox" value="on" id="gwt-uid-3" tabindex="0" checked=""><label for="gwt-uid-3">Show Bones</label></span>
+                                                        </td>
+                                                        <td align="left" style="vertical-align: top;"><span class="gwt-CheckBox"><input type="checkbox" value="on" id="gwt-uid-4" tabindex="0"><label for="gwt-uid-4">small</label></span>
+                                                        </td>
+                                                        <td align="left" style="vertical-align: top;"><span class="gwt-CheckBox"><input type="checkbox" value="on" id="gwt-uid-5" tabindex="0" checked=""><label for="gwt-uid-5">Iks</label></span>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="left" style="vertical-align: top;">
+                                            <table cellspacing="0" cellpadding="0" style="width: 250px;">
+                                                <tbody>
+                                                    <tr>
+                                                        <td align="left" style="vertical-align: top;">
+                                                            <div class="gwt-Label">Bone</div>
+                                                        </td>
+                                                        <td align="left" style="vertical-align: top;">
+                                                            <select class="gwt-ListBox">
+                                                                <option value="Rotation">Rotation</option>
+                                                                <option value="Position">Position</option>
+                                                            </select>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="left" style="vertical-align: top;">
+                                            <table cellspacing="0" cellpadding="0">
+                                                <tbody>
+                                                    <tr>
+                                                        <td align="left" style="vertical-align: top;">
+                                                            <select class="gwt-ListBox">
+                                                                <option value=""></option>
+                                                                <option value="lForeArm">lForeArm</option>
+                                                                <option value="lShldr">lShldr</option>
+                                                                <option value="lCollar">lCollar</option>
+                                                                <option value="lHand">lHand</option>
+                                                            </select>
+                                                        </td>
+                                                        <td align="left" style="vertical-align: top;"><span class="gwt-CheckBox" title="only work on + ALT mild IK"><input type="checkbox" value="on" id="gwt-uid-6" tabindex="0"><label for="gwt-uid-6">ik-lock</label></span>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="left" style="vertical-align: top;">
+                                            <table cellspacing="0" cellpadding="0">
+                                                <tbody>
+                                                    <tr>
+                                                        <td align="left" style="vertical-align: top;">
+                                                            <button type="button" class="gwt-Button">L &gt; R</button>
+                                                        </td>
+                                                        <td align="left" style="vertical-align: top;">
+                                                            <button type="button" class="gwt-Button">R &gt; L</button>
+                                                        </td>
+                                                        <td align="left" style="vertical-align: top;">
+                                                            <button type="button" class="gwt-Button">do Swap</button>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="left" style="vertical-align: top;">
+                                            <table cellspacing="0" cellpadding="0" style="width: 210px; height: 150px;">
+                                                <tbody>
+                                                    <tr>
+                                                        <td align="left" style="vertical-align: middle;">
+                                                            <table cellspacing="0" cellpadding="0" aria-hidden="true" style="display: none;">
+                                                                <tbody>
+                                                                    <tr>
+                                                                        <td align="left" style="vertical-align: top;">
+                                                                            <div class="title">X-Pos:23.9</div>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td align="left" style="vertical-align: top;">
+                                                                            <table cellspacing="0" cellpadding="0">
+                                                                                <tbody>
+                                                                                    <tr>
+                                                                                        <td align="left" style="vertical-align: top;">
+                                                                                            <div tabindex="0">
+                                                                                                <input type="text" tabindex="-1" role="presentation" style="opacity: 0; height: 1px; width: 1px; z-index: -1; overflow: hidden; position: absolute;">
+                                                                                                <input type="range" min="-6000" max="6000">
+                                                                                            </div>
+                                                                                        </td>
+                                                                                        <td align="left" style="vertical-align: top;">
+                                                                                            <button type="button" class="gwt-Button">Reset</button>
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                </tbody>
+                                                                            </table>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td align="left" style="vertical-align: top;">
+                                                                            <div class="title">Y-Pos:-1.3</div>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td align="left" style="vertical-align: top;">
+                                                                            <table cellspacing="0" cellpadding="0">
+                                                                                <tbody>
+                                                                                    <tr>
+                                                                                        <td align="left" style="vertical-align: top;">
+                                                                                            <div tabindex="0">
+                                                                                                <input type="text" tabindex="-1" role="presentation" style="opacity: 0; height: 1px; width: 1px; z-index: -1; overflow: hidden; position: absolute;">
+                                                                                                <input type="range" min="-6000" max="6000">
+                                                                                            </div>
+                                                                                        </td>
+                                                                                        <td align="left" style="vertical-align: top;">
+                                                                                            <button type="button" class="gwt-Button">Reset</button>
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                </tbody>
+                                                                            </table>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td align="left" style="vertical-align: top;">
+                                                                            <div class="title">Z-Pos:-3.3</div>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td align="left" style="vertical-align: top;">
+                                                                            <table cellspacing="0" cellpadding="0">
+                                                                                <tbody>
+                                                                                    <tr>
+                                                                                        <td align="left" style="vertical-align: top;">
+                                                                                            <div tabindex="0">
+                                                                                                <input type="text" tabindex="-1" role="presentation" style="opacity: 0; height: 1px; width: 1px; z-index: -1; overflow: hidden; position: absolute;">
+                                                                                                <input type="range" min="-6000" max="6000">
+                                                                                            </div>
+                                                                                        </td>
+                                                                                        <td align="left" style="vertical-align: top;">
+                                                                                            <button type="button" class="gwt-Button">Reset</button>
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                </tbody>
+                                                                            </table>
+                                                                        </td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td align="left" style="vertical-align: middle;">
+                                                            <table cellspacing="0" cellpadding="0" aria-hidden="false" style="">
+                                                                <tbody>
+                                                                    <tr>
+                                                                        <td align="left" style="vertical-align: top;">
+                                                                            <div class="title">X-Rotate:44</div>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td align="left" style="vertical-align: top;">
+                                                                            <table cellspacing="0" cellpadding="0">
+                                                                                <tbody>
+                                                                                    <tr>
+                                                                                        <td align="left" style="vertical-align: top;"><span class="gwt-CheckBox" title="lock this axis"><input type="checkbox" value="on" id="gwt-uid-7" tabindex="0"><label for="gwt-uid-7"></label></span>
+                                                                                        </td>
+                                                                                        <td align="left" style="vertical-align: top;">
+                                                                                            <div tabindex="0">
+                                                                                                <input type="text" tabindex="-1" role="presentation" style="opacity: 0; height: 1px; width: 1px; z-index: -1; overflow: hidden; position: absolute;">
+                                                                                                <input type="range" min="-180" max="180">
+                                                                                            </div>
+                                                                                        </td>
+                                                                                        <td align="left" style="vertical-align: top;">
+                                                                                            <button type="button" class="gwt-Button">-</button>
+                                                                                        </td>
+                                                                                        <td align="left" style="vertical-align: top;">
+                                                                                            <select class="gwt-ListBox">
+                                                                                                <option value="-180">-180</option>
+                                                                                                <option value="-135">-135</option>
+                                                                                                <option value="-90">-90</option>
+                                                                                                <option value="-45">-45</option>
+                                                                                                <option value="0">0</option>
+                                                                                                <option value="45">45</option>
+                                                                                                <option value="90">90</option>
+                                                                                                <option value="135">135</option>
+                                                                                                <option value="180">180</option>
+                                                                                                <option value=""></option>
+                                                                                            </select>
+                                                                                        </td>
+                                                                                        <td align="left" style="vertical-align: top;">
+                                                                                            <button type="button" class="gwt-Button">+</button>
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                </tbody>
+                                                                            </table>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td align="left" style="vertical-align: top;">
+                                                                            <div class="title">Y-Rotate:-41</div>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td align="left" style="vertical-align: top;">
+                                                                            <table cellspacing="0" cellpadding="0">
+                                                                                <tbody>
+                                                                                    <tr>
+                                                                                        <td align="left" style="vertical-align: top;"><span class="gwt-CheckBox" title="lock this axis"><input type="checkbox" value="on" id="gwt-uid-8" tabindex="0"><label for="gwt-uid-8"></label></span>
+                                                                                        </td>
+                                                                                        <td align="left" style="vertical-align: top;">
+                                                                                            <div tabindex="0">
+                                                                                                <input type="text" tabindex="-1" role="presentation" style="opacity: 0; height: 1px; width: 1px; z-index: -1; overflow: hidden; position: absolute;">
+                                                                                                <input type="range" min="-180" max="180">
+                                                                                            </div>
+                                                                                        </td>
+                                                                                        <td align="left" style="vertical-align: top;">
+                                                                                            <button type="button" class="gwt-Button">-</button>
+                                                                                        </td>
+                                                                                        <td align="left" style="vertical-align: top;">
+                                                                                            <select class="gwt-ListBox">
+                                                                                                <option value="-180">-180</option>
+                                                                                                <option value="-135">-135</option>
+                                                                                                <option value="-90">-90</option>
+                                                                                                <option value="-45">-45</option>
+                                                                                                <option value="0">0</option>
+                                                                                                <option value="45">45</option>
+                                                                                                <option value="90">90</option>
+                                                                                                <option value="135">135</option>
+                                                                                                <option value="180">180</option>
+                                                                                                <option value=""></option>
+                                                                                            </select>
+                                                                                        </td>
+                                                                                        <td align="left" style="vertical-align: top;">
+                                                                                            <button type="button" class="gwt-Button">+</button>
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                </tbody>
+                                                                            </table>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td align="left" style="vertical-align: top;">
+                                                                            <div class="title">Z-Rotate:0</div>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td align="left" style="vertical-align: top;">
+                                                                            <table cellspacing="0" cellpadding="0">
+                                                                                <tbody>
+                                                                                    <tr>
+                                                                                        <td align="left" style="vertical-align: top;"><span class="gwt-CheckBox" title="lock this axis"><input type="checkbox" value="on" id="gwt-uid-9" tabindex="0"><label for="gwt-uid-9"></label></span>
+                                                                                        </td>
+                                                                                        <td align="left" style="vertical-align: top;">
+                                                                                            <div tabindex="0">
+                                                                                                <input type="text" tabindex="-1" role="presentation" style="opacity: 0; height: 1px; width: 1px; z-index: -1; overflow: hidden; position: absolute;">
+                                                                                                <input type="range" min="-180" max="180">
+                                                                                            </div>
+                                                                                        </td>
+                                                                                        <td align="left" style="vertical-align: top;">
+                                                                                            <button type="button" class="gwt-Button">-</button>
+                                                                                        </td>
+                                                                                        <td align="left" style="vertical-align: top;">
+                                                                                            <select class="gwt-ListBox">
+                                                                                                <option value="-180">-180</option>
+                                                                                                <option value="-135">-135</option>
+                                                                                                <option value="-90">-90</option>
+                                                                                                <option value="-45">-45</option>
+                                                                                                <option value="0">0</option>
+                                                                                                <option value="45">45</option>
+                                                                                                <option value="90">90</option>
+                                                                                                <option value="135">135</option>
+                                                                                                <option value="180">180</option>
+                                                                                                <option value=""></option>
+                                                                                            </select>
+                                                                                        </td>
+                                                                                        <td align="left" style="vertical-align: top;">
+                                                                                            <button type="button" class="gwt-Button">+</button>
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                </tbody>
+                                                                            </table>
+                                                                        </td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="transparent" style="left: 150px; top: 35px; position: absolute; overflow: visible; visibility: visible;">
+        <div class="popupContent">
+            <div class="text" style="width: 100%; height: 20px;">Pose Editor ver.6.0(for three.r66) Created with <a href="https://github.com/mrdoob/three.js/">Three.js</a> &amp; <a href="http://code.google.com/intl/en/webtoolkit/">GWT</a> 3D-Models created by <a href="http://makehuman.org">Makehuman</a>
+            </div>
+        </div>
+    </div>
+    <div class="gwt-PopupPanel" style="overflow: visible; left: 1000px; top: 130px; position: absolute;">
+        <div class="popupContent">
+            <div tabindex="0" role="menubar" class="gwt-MenuBar gwt-MenuBar-vertical" hidefocus="true" style="outline: 0px;" aria-activedescendant="gwt-uid-18">
+                <input type="text" tabindex="-1" role="presentation" style="opacity: 0; height: 1px; width: 1px; z-index: -1; overflow: hidden; position: absolute;">
+                <table>
+                    <tbody>
+                        <tr>
+                            <td class="gwt-MenuItem" id="gwt-uid-10" role="menuitem" aria-haspopup="true" colspan="1">Ik</td>
+                            <td valign="middle" class="subMenuIcon"><img onload="this.__gwtLastUnhandledEvent=&quot;load&quot;;" src="http://okgab.com/pose/poseeditor/clear.cache.gif" style="width:5px;height:9px;background:url(data:image/gif;base64,R0lGODlhBQAJAIAAAAAAAAAAACH5BAEAAAEALAAAAAAFAAkAAAIMRB5gp9v2YlJsJRQKADs=) no-repeat 0px 0px;" border="0">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="gwt-MenuItem gwt-MenuItem-selected" id="gwt-uid-18" role="menuitem" aria-haspopup="true" colspan="1">Root</td>
+                            <td valign="middle" class="subMenuIcon subMenuIcon-selected"><img onload="this.__gwtLastUnhandledEvent=&quot;load&quot;;" src="http://okgab.com/pose/poseeditor/clear.cache.gif" style="width:5px;height:9px;background:url(data:image/gif;base64,R0lGODlhBQAJAIAAAAAAAAAAACH5BAEAAAEALAAAAAAFAAkAAAIMRB5gp9v2YlJsJRQKADs=) no-repeat 0px 0px;" border="0">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="gwt-MenuItem" id="gwt-uid-26" role="menuitem" aria-haspopup="true" colspan="1">Bone Limit</td>
+                            <td valign="middle" class="subMenuIcon"><img onload="this.__gwtLastUnhandledEvent=&quot;load&quot;;" src="http://okgab.com/pose/poseeditor/clear.cache.gif" style="width:5px;height:9px;background:url(data:image/gif;base64,R0lGODlhBQAJAIAAAAAAAAAAACH5BAEAAAEALAAAAAAFAAkAAAIMRB5gp9v2YlJsJRQKADs=) no-repeat 0px 0px;" border="0">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="gwt-MenuItem" id="gwt-uid-34" role="menuitem" aria-haspopup="true" colspan="1">Camera</td>
+                            <td valign="middle" class="subMenuIcon"><img onload="this.__gwtLastUnhandledEvent=&quot;load&quot;;" src="http://okgab.com/pose/poseeditor/clear.cache.gif" style="width:5px;height:9px;background:url(data:image/gif;base64,R0lGODlhBQAJAIAAAAAAAAAAACH5BAEAAAEALAAAAAAFAAkAAAIMRB5gp9v2YlJsJRQKADs=) no-repeat 0px 0px;" border="0">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="gwt-MenuBarPopup" style="left: 1118px; top: 156px; visibility: visible; position: absolute; overflow: visible;">
+        <div class="">
+            <table cellspacing="0" cellpadding="0" class="">
+                <tbody>
+                    <tr class="menuPopupTop">
+                        <td class="menuPopupTopLeft">
+                            <div class="menuPopupTopLeftInner"></div>
+                        </td>
+                        <td class="menuPopupTopCenter">
+                            <div class="menuPopupTopCenterInner"></div>
+                        </td>
+                        <td class="menuPopupTopRight">
+                            <div class="menuPopupTopRightInner"></div>
+                        </td>
+                    </tr>
+                    <tr class="menuPopupMiddle">
+                        <td class="menuPopupMiddleLeft">
+                            <div class="menuPopupMiddleLeftInner"></div>
+                        </td>
+                        <td class="menuPopupMiddleCenter">
+                            <div class="menuPopupMiddleCenterInner menuPopupContent">
+                                <div tabindex="-1" role="menubar" class="gwt-MenuBar gwt-MenuBar-vertical" hidefocus="true" style="outline: 0px;" aria-activedescendant="gwt-uid-22">
+                                    <input type="text" tabindex="-1" role="presentation" style="opacity: 0; height: 1px; width: 1px; z-index: -1; overflow: hidden; position: absolute;">
+                                    <table>
+                                        <tbody>
+                                            <tr>
+                                                <td class="gwt-MenuItem" id="gwt-uid-19" role="menuitem" colspan="2">touch ground(Y-0)</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="gwt-MenuItem" id="gwt-uid-20" role="menuitem" colspan="2">initial Position</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="gwt-MenuItem" id="gwt-uid-21" role="menuitem" colspan="2">initial Pose</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="gwt-MenuItem gwt-MenuItem-selected" id="gwt-uid-22" role="menuitem" colspan="2">Move to selection IK-X</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="gwt-MenuItem" id="gwt-uid-23" role="menuitem" colspan="2">Move to selection IK-Y</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="gwt-MenuItem" id="gwt-uid-24" role="menuitem" colspan="2">Move to selection IK-Z</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="gwt-MenuItem" id="gwt-uid-25" role="menuitem" colspan="2">Move to selection IK</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="menuPopupMiddleRight">
+                            <div class="menuPopupMiddleRightInner"></div>
+                        </td>
+                    </tr>
+                    <tr class="menuPopupBottom">
+                        <td class="menuPopupBottomLeft">
+                            <div class="menuPopupBottomLeftInner"></div>
+                        </td>
+                        <td class="menuPopupBottomCenter">
+                            <div class="menuPopupBottomCenterInner"></div>
+                        </td>
+                        <td class="menuPopupBottomRight">
+                            <div class="menuPopupBottomRightInner"></div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+
+</html>

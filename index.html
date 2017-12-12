@@ -1,0 +1,847 @@
+<!doctype html>
+<!-- The DOCTYPE declaration above will set the     -->
+<!-- browser's rendering engine into                -->
+<!-- "Standards Mode". Replacing this declaration   -->
+<!-- with a "Quirks Mode" doctype is not supported. -->
+
+
+<!-- http://www.instructables.com/id/How-to-use-Google-docs-for-data-logging/   -->
+
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+    <title>CMI Absolute Position Lab - 10 temp</title>
+
+    <link type="text/css" rel="stylesheet" href="css/PoseEditor.css">
+
+    <link type="text/css" rel="stylesheet" href="css/web-bluetooth.css">
+
+                              
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+     <script type="text/javascript" src="js/sensorData_COMBINED_18s_9-26-17.js"></script> 
+     <script type="text/javascript" src="js/exported_NN_12-28-28__9-26-17_1.js"></script>
+     <script type="text/javascript" src="js/exported_NN_12-32-28-28__9-27-17.js"></script>
+
+    <script type="text/javascript" src="js/sensor-web-bluetooth.js"></script>
+
+    <!-- library for neural network -->
+    <script src="js/synaptic.js"></script>
+
+    <!-- get web bluetooth data, collect data from model, apply to neural network -->
+    <script type="text/javascript" src="js/app-web-bluetooth.js"></script>
+
+    <style>
+    body{
+      background-color: black;
+    }
+    #interface-controls{
+      width: 38%;
+      margin-top: 5px;
+      display:inline-block;
+      height: 400px;
+    }
+    .master-pose-ui{
+      display: inline-block;
+      margin-top: 15px;
+      margin-bottom: 15px;
+    }
+      #btnOne{
+        z-index: 99;
+        margin-top: 60px;
+      }
+
+      .range-slider {
+        z-index: 99;
+      margin: 18px 0 0 0;
+    }
+
+    .range-slider {
+      width: 100%;
+    }
+    .sample-size-div{
+      width: 280px;
+      display: inline-block;
+      margin-top: 0px;
+    }
+    .sample-size-div .range-slider__value{
+      width: 18px;
+    }
+    .sample-size-div p.range-label{
+      text-align: center;
+    }
+    .range-slider__value.master-pose{
+      background-color: gray;
+    }
+
+    .range-slider p{
+      margin: 0px;
+      margin-bottom: -8px;
+    }
+
+    p.range-label{
+      color: white;
+      margin-bottom: -10px;
+      font-size: 11px;
+    }
+
+    .range-slider__range {
+      -webkit-appearance: none;
+      width: calc(100% - (110px));
+      height: 5px;
+      border-radius: 5px;
+      background: #d7dcdf;
+      outline: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .range-slider__range::-webkit-slider-thumb {
+      -webkit-appearance: none;
+              appearance: none;
+  /*    width: 20px;
+      height: 20px;   */
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+  /*    background: #2c3e50;   */
+      background: #dbca60;
+      cursor: pointer;
+      -webkit-transition: background .15s ease-in-out;
+      transition: background .15s ease-in-out;
+    }
+    .range-slider__range.transform {  /* these sliders no longer important so make smaller */
+      height: 5px;
+    }
+    .range-slider__range.transform::-webkit-slider-thumb {  /* these sliders no longer important so make smaller */
+            width: 15px;
+      height: 15px;
+    }
+    .range-slider__range::-webkit-slider-thumb:hover {
+      background: #1abc9c;
+    }
+    .range-slider__range:active::-webkit-slider-thumb {
+      background: #1abc9c;
+    }
+    .range-slider__range::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border: 0;
+      border-radius: 50%;
+      background: #2c3e50;
+      cursor: pointer;
+      -webkit-transition: background .15s ease-in-out;
+      transition: background .15s ease-in-out;
+    }
+    .range-slider__range::-moz-range-thumb:hover {
+      background: #1abc9c;
+    }
+    .range-slider__range:active::-moz-range-thumb {
+      background: #1abc9c; 
+      
+    }
+
+    .range-slider__value {
+      display: inline-block;
+      position: relative;
+      width: 40px;
+      color: #fff;
+      line-height: 20px;
+      text-align: center;
+      border-radius: 3px;
+      background: #d2691e; 
+      padding: 5px 10px;
+      margin-left: 8px;
+    }
+    .range-slider__value:after {
+      position: absolute;
+      top: 8px;
+      left: -7px;
+      width: 0;
+      height: 0;
+      border-top: 7px solid transparent;
+      border-right: 7px solid #d9b32a;
+      border-bottom: 7px solid transparent;
+      content: '';
+    }
+
+    ::-moz-range-track {
+      background: #d7dcdf;
+      border: 0;
+    }
+
+    input::-moz-focus-inner,
+    input::-moz-focus-outer {
+      border: 0;
+    }
+
+    .range-slider label {
+        position: absolute;
+        width: 20px;
+        margin-left: 5px;
+        margin-right: 5px;
+        text-align: center;
+        margin-top: 0px;
+        color: white;
+        font-size: 12px;
+    }
+
+    .sensor-data .data{
+      color: white;
+      width: 70px;
+      display: inline-block;
+      overflow: hidden;
+      font-size: 12px;
+    }
+    .sensor-container{
+      margin-top: 10px;
+    }
+    .intro{
+      margin-left: 0px;
+      margin-bottom: 0px;
+    }
+
+    .btn {
+      padding: 0px;
+        display: inline-block;
+        padding: 6px 12px;
+        margin-bottom: 0;
+        font-size: 18px;
+        font-weight: 500;
+        line-height: 1.428;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+        cursor: pointer;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        -o-user-select: none;
+        user-select: none;
+    }
+    .btn:hover {
+        background-color: #46b8da;
+        border-color: #31b0d5;
+    }
+    #collect.btn , #connect.btn, #print-btn.btn, #load-btn.btn, #train-btn.btn, #activate-btn, #export-btn, #train2-btn.btn, #activate2-btn, #export2-btn, #load-nn-btn{
+        color: #fff;
+        background-color: #3bafda;
+        border-color: #3bafda;
+        margin-right: 12px;
+        margin-bottom: 10px;
+        margin-top: 10px;
+        width: 115px;
+    }
+    #activate-btn, #export-btn, #activate2-btn, #export2-btn{
+      background-color: #3d3d3d;
+      border-color: #3d3d3d;
+      width: 125px;
+    }
+    #activate-btn.haveNN, #export-btn.haveNN, #activate2-btn.haveNN, #export2-btn.haveNN{
+      background-color: green;
+      border-color: green;
+    }
+    #activate-btn.activeNN, #activate2-btn.activeNN, #load-nn-btn.activeNN, #load-nn-btn.activatedNN{
+      background-color: red;
+      border-color: red;
+    }
+
+    /*   firebase  */
+    form {
+      margin-top: 30px;
+    }
+    form div{
+      display: inline-block;
+      margin-right: 3px;
+    }
+    form div input{
+      width: 80px;
+    }
+    form .label{
+      color: white;
+      font-style: bold;
+      font-weight: 600;
+    }
+    form .btn, button#back-pose, button#forward-pose, button#go-pose{
+      color: #fff;
+        background-color: #d9b32a;
+        border-color: #d9b32a;
+        margin-right: 5px;
+        width: 80px;
+        font-size: 14px;
+        font-weight: 600;
+        padding: 0px 0px;
+    }
+    #container{
+    }
+    .console{
+      
+    }
+    .console div, .console p{
+      display: inline-block;
+      margin-top:0px; margin-bottom: 0px;
+      font-size: 12px;
+      color:white;
+    }
+    .console p span{
+      color: yellow;
+    }
+    .master-pose-ui-label{
+      color: white;
+      font-size: 16px;
+      margin-top: 0px; margin-bottom: 0px;
+      font-weight: 600;
+      display: inline-block;
+    }
+    .range-slider.master-pose{
+      margin-top: 0px;
+    }
+    #master-pose-input{
+      width: 40px;
+    }
+    .heat-map{
+    	width: 30%;
+    	display: inline-block;
+      margin-top: -50px;
+      float: right;
+    	height: 400px;
+    }
+    .heat-map .heat-row{
+    	width: 98%;
+    	margin-left: 10%;
+    }
+    .heat-map .heat-block{
+    	display:inline-block;
+    	width: 20%;
+    	position: relative;
+    }
+    .heat-map .heat-item{
+    	color: #6b6b6b;
+    	text-align: center;
+    	font-size: 6rem;
+    	line-height: 4rem;
+    	z-index:2;
+    	/* width: 90%; */
+    }
+    .heat-map .heat-item1{
+        margin-bottom: 3rem;
+    }
+    .heat-map .heat-item2, .heat-map .heat-item3{
+    	margin-top: -40px;
+    	position: relative;
+    }
+    .heat-map .heat-item2{
+    	font-size: 8.5rem;
+    }
+    .heat-map .heat-item3{
+    	font-size: 7.5rem;
+    }
+    .heat-map .heat-item::after { 
+	    font-size: 0.8rem;
+	    height: 10px;
+	    position: absolute;
+	    width: 10%;
+	    left: 0px;
+	    top: 0px;
+	    z-index: 9;
+	    color: white;
+	}
+	.heat-map .heat-item.heat-index1::after { content: "1"; }
+	.heat-map .heat-item.heat-index2::after { content: "2"; }
+	.heat-map .heat-item.heat-index3::after { content: "3"; }
+	.heat-map .heat-item.heat-index4::after { content: "4"; }
+	.heat-map .heat-item.heat-index5::after { content: "5"; }
+	.heat-map .heat-item.heat-index6::after { content: "6"; }
+	.heat-map .heat-item.heat-index7::after { content: "7"; }
+	.heat-map .heat-item.heat-index8::after { content: "8"; }
+	.heat-map .heat-item.heat-index9::after { content: "9"; }
+	.heat-map .heat-item.heat-index10::after { content: "10"; }
+	.heat-map .heat-item.heat-index11::after { content: "11"; }
+	.heat-map .heat-item.heat-index12::after { content: "12"; }
+	.heat-map .heat-item.heat-index13::after { content: "13"; }
+	.heat-map .heat-item.heat-index14::after { content: "14"; }
+	.heat-map .heat-item.heat-index15::after { content: "15"; }
+	.heat-map .heat-item.heat-index16::after { content: "16"; }
+	.heat-map .heat-item.heat-index17::after { content: "17"; }
+	.heat-map .heat-item.heat-index18::after { content: "18"; }
+	.heat-map .heat-item.heat-index19::after { content: "19"; }
+	.heat-map .heat-item.heat-index20::after { content: "20"; }
+	.heat-map .heat-item.heat-index21::after { content: "21"; }
+	.heat-map .heat-item.heat-index22::after { content: "22"; }
+	.heat-map .heat-item.heat-index23::after { content: "23"; }
+	.heat-map .heat-item.heat-index24::after { content: "24"; }
+	.heat-map .heat-item.heat-index25::after { content: "25"; }
+	.heat-map .heat-item.heat-index26::after { content: "26"; }
+	.heat-map .heat-item.heat-index27::after { content: "27"; }
+	.heat-map .heat-item.heat-index28::after { content: "28"; }
+
+	.coordinates{
+		color: white;
+		font-size: 1.5rem;
+    height: 50px;
+	}
+  .coordinates p{
+    display: inline-block;
+  }
+  #coordinates1, #absolute-position1{
+    color: red;
+  }
+  #coordinates2, #absolute-position2{
+    color: green;
+  }
+  #coordinates3, #absolute-position3{
+    color: purple;
+  }
+  #coordinates4, #absolute-position4{
+    color: orange;
+  }
+	.absolute-position{
+		position:absolute;
+		top: 3%;
+		left: 3%;
+		color: red;
+		font-size: 7rem;
+        z-index: 99;
+	}
+
+  </style>
+
+
+  </head>
+
+
+  <body>
+  	<!-- this circle moves across the screen and changes size according to 3D position coordinates -->
+  	<div id="absolute-position1" class="absolute-position">&#9679;</div>
+    <div id="absolute-position2" class="absolute-position">&#9679;</div>
+    <div id="absolute-position3" class="absolute-position">&#9679;</div>
+    <div id="absolute-position4" class="absolute-position">&#9679;</div>
+
+<!-- WEB BLUETOOTH SENSOR SYNC TEST HTML -->
+    <section class="sensor-container">
+      <div class="sensor-data">
+          <div class="data">OT1: <span class="object-temp-1-data"></span></div>
+          <div class="data">OT2: <span class="object-temp-2-data"></span></div>
+          <div class="data">OT3: <span class="object-temp-3-data"></span></div>
+          <div class="data">OT4: <span class="object-temp-4-data"></span></div>
+          <div class="data">OT5: <span class="object-temp-5-data"></span></div>
+          <div class="data">OT6: <span class="object-temp-6-data"></span></div>
+          <div class="data">OT7: <span class="object-temp-7-data"></span></div>
+          <div class="data">OT8: <span class="object-temp-8-data"></span></div>
+          <div class="data">OT9: <span class="object-temp-9-data"></span></div>
+          <div class="data">OT10: <span class="object-temp-10-data"></span></div>
+          <div class="data">OT11: <span class="object-temp-11-data"></span></div>
+          <div class="data">OT12: <span class="object-temp-12-data"></span></div>
+          <div class="data">OT13: <span class="object-temp-13-data"></span></div>
+          <div class="data">OT14: <span class="object-temp-14-data"></span></div>
+          <div class="data">OT15: <span class="object-temp-15-data"></span></div>
+      <!--    <div class="data">OT16: <span class="object-temp-16-data"></span></div> -->
+          <div class="data">ATav: <span class="ambient-temp-average-data"></span></div>
+
+          <div class="data">Pitch: <span class="accelerometer-pitch-data"></span></div> 
+          <div class="data">Roll: <span class="accelerometer-roll-data"></span></div>
+          <div class="data">HR: <span class="raw-ppg-heart-data"></span></div>
+        
+      </div>
+    </section>
+
+
+
+    <div  class="data-ui">
+        <button id="print-btn" class="btn">
+          Print Data
+        </button>
+        <button id="load-btn" class="btn">
+          Load Data
+        </button>
+        <button id="train-btn" class="btn">
+          Train NN1
+        </button>
+        <button id="export-btn" class="btn">
+          Export NN1
+        </button>
+        <button id="activate-btn" class="btn">
+          Activate NN1
+        </button>
+        <button id="train2-btn" class="btn">
+          Train NN2
+        </button>
+        <button id="export2-btn" class="btn">
+          Export NN2
+        </button>
+        <button id="activate2-btn" class="btn">
+          Activate NN2
+        </button>
+        <button id="load-nn-btn" class="btn">
+          Load NN
+        </button>
+    </div>
+
+<!-- info about collected sensor data samples -->
+    <div class="console">
+        <p>#Samples:</p><div class="console-samples">0</div>
+        <p>#Sets:</p><div class="console-sets">0</div>
+    </div>
+
+    <div class="intro">
+        <button id="connect" class="btn">
+          Connect
+        </button>
+
+        <span id="message"></span>
+
+        <div class="range-slider sample-size-div">
+          <p class="range-label"># Samples</p>
+          <input class="range-slider__range sample-size" type="range" value="5" min="5" max="30" step="5">
+          <span class="range-slider__value">0</span>
+        </div>
+
+        <button id="collect" class="btn">
+          Collect
+        </button>
+    </div>
+
+  	<div id="interface-controls">
+  	   <!-- RANGE SLIDER JS AT BOTTOM -->
+  		    <div class='master-pose-ui'>
+  		      <p class='master-pose-ui-label'>Pose Selection:</p>
+  		      <button id="back-pose" class="master-pose btn"> < </button>
+  		      <button id="forward-pose" class="master-pose btn"> > </button>
+  		      <button id="go-pose" class="master-pose btn"> GO </button>
+  		      <input id="master-pose-input" class="master-pose" type="text" value="1">
+  		    </div>
+
+  		  <div class="range-slider master-pose">
+  		    <p class="range-label"><p>
+  		    <input class="range-slider__range master-pose" type="range" value="1" min="1" max="28" step="1" increment="5">
+  		    <span class="range-slider__value master-pose">1</span>
+  		  </div>
+
+        <div id="coordinates1" class="coordinates"></div>
+        <div id="coordinates2" class="coordinates"></div>
+        <div id="coordinates3" class="coordinates"></div>
+        <div id="coordinates4" class="coordinates"></div>
+  		   
+  	</div>
+
+	<div id="heat-map1" class="heat-map">
+		<!-- row 1 hands up -->
+		<div class="heat-row heat-row-1">
+			<div class="heat-block heat-block1">
+				<div class="heat-item heat-item-back heat-item1 heat-index1 NN1">&#9679;
+				<div class="heat-item heat-item-front heat-item2 heat-index2 NN1">&#9679;</div></div>
+			</div>
+			<div class="heat-block heat-block2">
+				<div class="heat-item heat-item-back heat-item1 heat-index3 NN1">&#9679;
+				<div class="heat-item heat-item-front heat-item2 heat-index4 NN1">&#9679;</div></div>
+			</div>
+			<div class="heat-block heat-block3">
+				<div class="heat-item heat-item-back heat-item1 heat-index5 NN1">&#9679;
+				<div class="heat-item heat-item-front heat-item2 heat-index6 NN1">&#9679;</div></div>
+			</div>
+			<div class="heat-block heat-block4">
+				<div class="heat-item heat-item-back heat-item1 heat-index7 NN1">&#9679;
+				<div class="heat-item heat-item-front heat-item2 heat-index8 NN1">&#9679;</div></div>
+			</div>
+		</div>
+		<!-- row 2 hands out -->
+		<div class="heat-row heat-row-2">
+			<div class="heat-block heat-block1">
+				<div class="heat-item heat-item-back heat-item1 heat-index9 NN1">&#9679;
+				<div class="heat-item heat-item-middle heat-item3 heat-index10 NN1">&#9679;
+				<div class="heat-item heat-item-front heat-item2 heat-index11 NN1">&#9679;</div></div></div>
+			</div>
+			<div class="heat-block heat-block2">
+				<div class="heat-item heat-item-back heat-item1 heat-index12 NN1">&#9679;
+				<div class="heat-item heat-item-middle heat-item3 heat-index13 NN1">&#9679;
+				<div class="heat-item heat-item-front heat-item2 heat-index14 NN1">&#9679;</div></div></div>
+			</div>
+			<div class="heat-block heat-block3">
+				<div class="heat-item heat-item-back heat-item1 heat-index15 NN1">&#9679;
+				<div class="heat-item heat-item-middle heat-item3 heat-index16 NN1">&#9679;
+				<div class="heat-item heat-item-front heat-item2 heat-index17 NN1">&#9679;</div></div></div>
+			</div>
+			<div class="heat-block heat-block4">
+				<div class="heat-item heat-item-back heat-item1 heat-index18 NN1">&#9679;
+				<div class="heat-item heat-item-middle heat-item3 heat-index19 NN1">&#9679;
+				<div class="heat-item heat-item-front heat-item2 heat-index20 NN1">&#9679;</div></div></div>
+			</div>
+		</div>
+		<!-- row 3 hands down -->
+		<div class="heat-row heat-row-3">
+			<div class="heat-block heat-block1">
+				<div class="heat-item heat-item-back heat-item1 heat-index21 NN1">&#9679;
+				<div class="heat-item heat-item-front heat-item2 heat-index22 NN1">&#9679;</div></div>
+			</div>
+			<div class="heat-block heat-block2">
+				<div class="heat-item heat-item-back heat-item1 heat-index23 NN1">&#9679;
+				<div class="heat-item heat-item-front heat-item2 heat-index24 NN1">&#9679;</div></div>
+			</div>
+			<div class="heat-block heat-block3">
+				<div class="heat-item heat-item-back heat-item1 heat-index25 NN1">&#9679;
+				<div class="heat-item heat-item-front heat-item2 heat-index26 NN1">&#9679;</div></div>
+			</div>
+			<div class="heat-block heat-block4">
+				<div class="heat-item heat-item-back heat-item1 heat-index27 NN1">&#9679;
+				<div class="heat-item heat-item-front heat-item2 heat-index28 NN1">&#9679;</div></div>
+			</div>
+		</div>
+	</div>
+
+  <div id="heat-map2" class="heat-map">
+    <!-- row 1 hands up -->
+    <div class="heat-row heat-row-1">
+      <div class="heat-block heat-block1">
+        <div class="heat-item heat-item-back heat-item1 heat-index1 NN2">&#9679;
+        <div class="heat-item heat-item-front heat-item2 heat-index2 NN2">&#9679;</div></div>
+      </div>
+      <div class="heat-block heat-block2">
+        <div class="heat-item heat-item-back heat-item1 heat-index3 NN2">&#9679;
+        <div class="heat-item heat-item-front heat-item2 heat-index4 NN2">&#9679;</div></div>
+      </div>
+      <div class="heat-block heat-block3">
+        <div class="heat-item heat-item-back heat-item1 heat-index5 NN2">&#9679;
+        <div class="heat-item heat-item-front heat-item2 heat-index6 NN2">&#9679;</div></div>
+      </div>
+      <div class="heat-block heat-block4">
+        <div class="heat-item heat-item-back heat-item1 heat-index7 NN2">&#9679;
+        <div class="heat-item heat-item-front heat-item2 heat-index8 NN2">&#9679;</div></div>
+      </div>
+    </div>
+    <!-- row 2 hands out -->
+    <div class="heat-row heat-row-2">
+      <div class="heat-block heat-block1">
+        <div class="heat-item heat-item-back heat-item1 heat-index9 NN2">&#9679;
+        <div class="heat-item heat-item-middle heat-item3 heat-index10 NN2">&#9679;
+        <div class="heat-item heat-item-front heat-item2 heat-index11 NN2">&#9679;</div></div></div>
+      </div>
+      <div class="heat-block heat-block2">
+        <div class="heat-item heat-item-back heat-item1 heat-index12 NN2">&#9679;
+        <div class="heat-item heat-item-middle heat-item3 heat-index13 NN2">&#9679;
+        <div class="heat-item heat-item-front heat-item2 heat-index14 NN2">&#9679;</div></div></div>
+      </div>
+      <div class="heat-block heat-block3">
+        <div class="heat-item heat-item-back heat-item1 heat-index15 NN2">&#9679;
+        <div class="heat-item heat-item-middle heat-item3 heat-index16 NN2">&#9679;
+        <div class="heat-item heat-item-front heat-item2 heat-index17 NN2">&#9679;</div></div></div>
+      </div>
+      <div class="heat-block heat-block4">
+        <div class="heat-item heat-item-back heat-item1 heat-index18 NN2">&#9679;
+        <div class="heat-item heat-item-middle heat-item3 heat-index19 NN2">&#9679;
+        <div class="heat-item heat-item-front heat-item2 heat-index20 NN2">&#9679;</div></div></div>
+      </div>
+    </div>
+    <!-- row 3 hands down -->
+    <div class="heat-row heat-row-3">
+      <div class="heat-block heat-block1">
+        <div class="heat-item heat-item-back heat-item1 heat-index21 NN2">&#9679;
+        <div class="heat-item heat-item-front heat-item2 heat-index22 NN2">&#9679;</div></div>
+      </div>
+      <div class="heat-block heat-block2">
+        <div class="heat-item heat-item-back heat-item1 heat-index23 NN2">&#9679;
+        <div class="heat-item heat-item-front heat-item2 heat-index24 NN2">&#9679;</div></div>
+      </div>
+      <div class="heat-block heat-block3">
+        <div class="heat-item heat-item-back heat-item1 heat-index25 NN2">&#9679;
+        <div class="heat-item heat-item-front heat-item2 heat-index26 NN2">&#9679;</div></div>
+      </div>
+      <div class="heat-block heat-block4">
+        <div class="heat-item heat-item-back heat-item1 heat-index27 NN2">&#9679;
+        <div class="heat-item heat-item-front heat-item2 heat-index28 NN2">&#9679;</div></div>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="dump-print"></div>
+   
+  </body>
+
+
+
+
+
+
+
+<script>
+
+var angleData = {shoulder:{x: 0, y: 0, z: 0}, 
+         elbow:{x: 0, y: 0, z: 0}, 
+         hand:{x: 0, y: 0, z: 0}};
+
+
+var numPositions = 28;
+
+
+var masterPoserTotal = numPositions;
+var currentPose = 1;
+
+var altMasterPoseUIFlag = false; //we have multiple UI directed towards changing master pose which we must update without redundant pose transforms
+
+      var rangeSlider = function(){
+        var slider = $('.range-slider'),
+            range = $('.range-slider__range'),
+            value = $('.range-slider__value');
+          
+        slider.each(function(){
+
+          value.each(function(){
+            var value = $(this).prev().attr('value');
+            $(this).html(value);
+          });
+
+          range.on('input', function(){
+            $(this).next(value).html(this.value);
+          
+          });
+        });
+      }
+
+$( document ).ready(function() {
+      console.log( "ready!" );
+
+      //add pose coordinate position sample count html
+      for(var i=1;i<numPositions+1;i++){ $('div.console').append( '<p class="pose' + i +'">&nbsp;&nbsp;P'+i+':<span>0</span></p><div class="console-p'+i+'><span>0</span></div>'); }
+
+      rangeSlider();
+
+      /*********** MASTER POSE CHANGE *****************/
+      $('#back-pose').click(function() {
+          if(currentPose > 0){
+            currentPose = currentPose - 1;
+            $('#master-pose-input').val(currentPose);
+      
+
+            altMasterPoseUIFlag = true; //we have multiple UI directed towards changing master pose which we must update without redundant pose transforms
+            $('.range-slider__range.master-pose').val(currentPose);
+            $('.range-slider__range.master-pose').trigger( 'input' );
+          }
+      });
+
+      $('#forward-pose').click(function() {
+          if(currentPose < numPositions){
+              currentPose = currentPose + 1;
+              
+
+              $('#master-pose-input').val(currentPose);
+
+              altMasterPoseUIFlag = true; //we have multiple UI directed towards changing master pose which we must update without redundant pose transforms
+              $('.range-slider__range.master-pose').val(currentPose);
+              $('.range-slider__range.master-pose').trigger( 'input' );
+          }
+      });
+
+      $('#go-pose').click(function() {
+          currentPose = parseInt( $('#master-pose-input').val() );
+ 
+
+          altMasterPoseUIFlag = true; //we have multiple UI directed towards changing master pose which we must update without redundant pose transforms
+          $('.range-slider__range.master-pose').val(currentPose);
+          $('.range-slider__range.master-pose').trigger( 'input' );
+
+          //!!!!!!!!!!!!! TEST BLUETOOTH COMMAND SEND
+          sendCommandFlag = true;
+          commandValue[0] = 0x02; 
+      });
+
+      $('.range-slider__range.master-pose').on('input', function(){
+          //get pose select index from input
+          if(altMasterPoseUIFlag == false ){ //we have multiple UI directed towards changing master pose which we must update without redundant pose transforms
+
+            currentPose = parseInt( $(this).val() ); 
+      
+
+            $('#master-pose-input').val(currentPose);
+
+          }else{altMasterPoseUIFlag = false;}
+
+      });
+
+      
+
+      //RANGE SLIDER EVENT HANDLER
+      $('.range-slider__range.transform').on('input', function(){
+          console.log("^jquery range slider");
+
+          globalUpdate = true;
+
+          var boneName, angleNew, index, currentX, currentY, currentZ;
+
+          angleNew = $(this).val();
+
+          if( $(this).hasClass('elbow') ){ 
+            boneName = "rForeArm"; 
+
+            if( $(this).hasClass('x-angle') ){ angleData.elbow.x = angleNew; }
+            else if( $(this).hasClass('y-angle') ){ angleData.elbow.y = angleNew; }
+            else if( $(this).hasClass('z-angle') ){ angleData.elbow.z = angleNew; }
+
+            currentX = angleData.elbow.x;
+            currentY = angleData.elbow.y;
+            currentZ = angleData.elbow.z;
+          } else if( $(this).hasClass('hand') ){ 
+            boneName = "rHand"; 
+
+            if( $(this).hasClass('x-angle') ){ angleData.hand.x = angleNew; }
+            else if( $(this).hasClass('y-angle') ){ angleData.hand.y = angleNew; }
+            else if( $(this).hasClass('z-angle') ){ angleData.hand.z = angleNew; }
+
+            currentX = angleData.hand.x;
+            currentY = angleData.hand.y;
+            currentZ = angleData.hand.z;
+          } else if( $(this).hasClass('shoulder') ){ 
+            boneName = "rShldr"; 
+
+            if( $(this).hasClass('x-angle') ){ angleData.shoulder.x = angleNew; }
+            else if( $(this).hasClass('y-angle') ){ angleData.shoulder.y = angleNew; }
+            else if( $(this).hasClass('z-angle') ){ angleData.shoulder.z = angleNew; }
+
+            currentX = angleData.shoulder.x;
+            currentY = angleData.shoulder.y;
+            currentZ = angleData.shoulder.z;
+          }
+
+      });
+
+
+
+
+      $( ".range-slider" ).each(function() {
+
+        if(!$(this).hasClass("sample-size-div")){
+          // Add labels to slider whose values 
+          // are specified by min, max and whose
+          // step is set to 1
+            
+          // Get the options for this slider
+          //var opt = $(this).data().uiSlider.options;
+          // Get the number of possible values
+          var $input = $(this).find("input");
+          var min = parseInt($input.attr("min"));
+          var max = parseInt($input.attr("max"));
+          var step = parseInt($input.attr("step"));
+          var increment = parseInt($input.attr("increment"));
+          var vals = max - min; //opt.max - opt.min;
+          //if(min < 0){ vals = max + min; }
+            
+          // Space out values
+          for (var i = 0; (i * increment) <= vals; i++) {
+              var s = min + (i * increment);
+              var el = $('<label>'+ s +'</label>').css('left',( 3 + Math.abs((s-min)/vals) *($input.width() -24)+'px'));
+           //   var el = $('<label>'+ s +'</label>').css('left',( 3 + ((s-min)/vals) *($input.width() -24)+'px'));
+              $(this).append(el);
+          }
+        }
+
+      });
+
+  }); //end of on document load
+
+
+
+</script>
+
+</html>
