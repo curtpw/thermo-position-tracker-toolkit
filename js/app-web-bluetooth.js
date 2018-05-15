@@ -1,16 +1,8 @@
 
-/*CONVERSION FROM SPHERICAL TO CARTESIAN
-Conversion Formula
-
-Conversely spherical coordinates may be converted to Cartesian coordinates using the following formulas:
-
-break x/y/z coordinates into 7 output NN from 3 output NN
-
-​​ 
+/*
 ​x=r sin(φ)cos(θ)
 ​y=r sin(φ)sin(θ)
 ​z=r cos(φ)
-
 */
 
   // !! Joystick & Distance global var
@@ -49,11 +41,8 @@ window.onload = function(){
   let accelerometerData, objectTempData, ambientTempData, heartRateData;
 
 
-  //3D model arm position sample data
- // var poseDataArray = []; 
   //sensor array sample data
-  //var sensorDataArray = new Array(12).fill(0); 
-  var sensorDataArray = new Array(18).fill(0); 
+  var sensorDataArray = new Array(32).fill(0); 
 
   //master session data array of arrays
   var sensorDataSession = [];
@@ -88,11 +77,11 @@ window.onload = function(){
 	var timeout = null;
 
   button.onclick = function(e){
-    var sensorController = new ControllerWebBluetooth("Thermo");
-    sensorController.connect();
+      var sensorController = new ControllerWebBluetooth("ThermoV2");
+      sensorController.connect();
 
-    sensorController.onStateChange(function(state){
-console.log("app.js state change");
+      sensorController.onStateChange(function(state){
+      //console.log("app.js state change");
 
       accelerometerData = state.accelerometer;
       objectTempData = state.objectTemp;
@@ -101,8 +90,9 @@ console.log("app.js state change");
 
 
       //if data sample collection has been flagged
-      sensorDataArray = new Array(18).fill(0); 
+      sensorDataArray = new Array(30).fill(0); 
       getSensorData();
+
       if(getSamplesFlag > 0){
           collectData();
       } else if (trainNNFlag1 || trainNNFlag2){
@@ -118,10 +108,9 @@ console.log("app.js state change");
           } else if(loadNNFlag){
               getNNScore(2);
           }
-
       }
 
-	console.log("loadNNFlag in main loop: " + loadNNFlag);
+	//console.log("loadNNFlag in main loop: " + loadNNFlag);
 
       displayData();
     });
@@ -218,19 +207,22 @@ console.log("app.js state change");
       distance3Element.innerHTML = state.distance3.toFixed(1);
     }
 
-    
-    
-
     if(state.ambientTemp){
         var ambientTempAverageElement = document.getElementsByClassName('ambient-temp-average-data')[0];
         ambientTempAverageElement.innerHTML = state.ambientTemp;
     }
 
+    if(state.ambientTemp){
+        var batteryElement = document.getElementsByClassName('battery-data')[0];
+        batteryElement.innerHTML = state.battery;
+    }
+    
+
   }
 
   function getSensorData(){
 
-    if(objectTempData){
+    if(state.objectTemp){
 	    sensorDataArray[0] = state.objectTemp[0].toFixed(1);
 	    sensorDataArray[1] = state.objectTemp[1].toFixed(1); 
 	    sensorDataArray[2] = state.objectTemp[2].toFixed(1);
@@ -246,14 +238,30 @@ console.log("app.js state change");
 	    sensorDataArray[12] = state.objectTemp[12].toFixed(1); 
 	    sensorDataArray[13] = state.objectTemp[13].toFixed(1); 
 	    sensorDataArray[14] = state.objectTemp[14].toFixed(1);
+      sensorDataArray[15] = state.objectTemp[15].toFixed(1);
+      sensorDataArray[16] = state.objectTemp[16].toFixed(1);
+      sensorDataArray[17] = state.objectTemp[17].toFixed(1);
+      sensorDataArray[18] = state.objectTemp[18].toFixed(1);
+      sensorDataArray[19] = state.objectTemp[19].toFixed(1);
+      sensorDataArray[20] = state.objectTemp[20].toFixed(1);
+      sensorDataArray[21] = state.objectTemp[21].toFixed(1);
     }
-    if(ambientTempData){
-      	sensorDataArray[15] = state.ambientTemp.toFixed(1);
-    } 
+
+    if(state.distance1){
+      sensorDataArray[22] = state.distance1.toFixed(1);
+      sensorDataArray[23] = state.distance2.toFixed(1);
+      sensorDataArray[24] = state.distance3.toFixed(1);
+
+    }
+
     if(accelerometerData){
-      	sensorDataArray[16] = state.pitch.toFixed(1);
-	    sensorDataArray[17] = state.roll.toFixed(1); 
+      sensorDataArray[25] = state.pitch.toFixed(1);
+      sensorDataArray[26] = state.roll.toFixed(1); 
     }
+
+    if(ambientTempData){
+      	sensorDataArray[27] = state.ambientTemp.toFixed(1);
+    } 
 
   }
 
@@ -301,11 +309,9 @@ console.log("app.js state change");
    //   collectedDataArray.unshift( positionNumber );
 
    //!!!!!!!!!!!!!!!!!!!!!!!!!! ADD JOYSTICK JIG DATA TO END!
-   //!!!!!!!!!!!!!!!!!!!!!!!!!! ADD JOYSTICK JIG DATA TO END!
-   //!!!!!!!!!!!!!!!!!!!!!!!!!! ADD JOYSTICK JIG DATA TO END!
-      collectedDataArray[18] = xJoystick.toFixed(4);
-      collectedDataArray[19] = yJoystick.toFixed(4);
-      collectedDataArray[20] = distanceSensor.toFixed(4);
+      collectedDataArray[29] = xJoystick.toFixed(4);
+      collectedDataArray[30] = yJoystick.toFixed(4);
+      collectedDataArray[31] = distanceSensor.toFixed(4);
 
       console.log("web bluetooth sensor data:");
 

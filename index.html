@@ -1,22 +1,12 @@
 <!doctype html>
-<!-- The DOCTYPE declaration above will set the     -->
-<!-- browser's rendering engine into                -->
-<!-- "Standards Mode". Replacing this declaration   -->
-<!-- with a "Quirks Mode" doctype is not supported. -->
-
-
-<!-- http://www.instructables.com/id/How-to-use-Google-docs-for-data-logging/   -->
-
 <html>
   <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 
-    <title>CMI Absolute Position Lab - SPLIT NN OUTPUT joystic/distance jig </title>
+    <title>Thermo Position Tracking Toolkit</title>
 
     <link type="text/css" rel="stylesheet" href="css/PoseEditor.css">
-
     <link type="text/css" rel="stylesheet" href="css/web-bluetooth.css">
-
     <link rel="stylesheet" type="text/css" href="css/gamepad.css">
 
                               
@@ -24,9 +14,9 @@
 
     
      <!-- data and data processing files, JSON or raw JS object -->
-     <script type="text/javascript" src="js/sensorData_COMBINED_18s_10-23-17.js"></script> 
+ <!--    <script type="text/javascript" src="js/sensorData_COMBINED_18s_10-23-17.js"></script> 
      <script type="text/javascript" src="js/exported_NN_12-7-7-12_10-24-17.js"></script>
-     <script type="text/javascript" src="js/exported_NN_12-4-4-12_10-24-17.js"></script>
+     <script type="text/javascript" src="js/exported_NN_12-4-4-12_10-24-17.js"></script> -->
 
      <!-- get data from absolute position device -->
     <script type="text/javascript" src="js/sensor-web-bluetooth.js"></script>
@@ -418,6 +408,9 @@
       display:inline-block;
       float: right;
     }
+    #dump-print{
+    	background-color: white;
+    }
 
   </style>
 
@@ -462,9 +455,13 @@
           <div class="data">Distance2: <span class="distance-2-data"></span></div>
           <div class="data">Distance3: <span class="distance-3-data"></span></div>
         
-          <div class="data">ATav: <span class="ambient-temp-average-data"></span></div>
+
           <div class="data">Pitch: <span class="accelerometer-pitch-data"></span></div> 
           <div class="data">Roll: <span class="accelerometer-roll-data"></span></div>
+
+          <div class="data">ATav: <span class="ambient-temp-average-data"></span></div>
+
+          <div class="data">Battery: <span class="battery-data"></span></div>
         
       </div>
     </section>

@@ -193,25 +193,27 @@ class ControllerWebBluetooth{
     state.objectTemp[17] = objectTemp18;
     state.objectTemp[18] = objectTemp19;
 
-    console.log("ObjT1: " + state.objectTemp[0]);
+ //   console.log("ObjT1: " + state.objectTemp[0]);
    
   } else if(packetPosition == 1) {
-    let objectTemp20  = ( event.target.value.getUint8(0) / 8) + 70;
-    let objectTemp21  = ( event.target.value.getUint8(1) / 8) + 70;
-    let objectTemp22  = ( event.target.value.getUint8(2) / 8) + 70;
+    let objectTemp20        = ( event.target.value.getUint8(0) / 8) + 70;
+    let objectTemp21        = ( event.target.value.getUint8(1) / 8) + 70;
+    let objectTemp22        = ( event.target.value.getUint8(2) / 8) + 70;
 
-    let distance1     = ( event.target.value.getUint8(3) );
-    let distance2     = ( event.target.value.getUint8(4) );
-    let distance3     = ( event.target.value.getUint8(5) );
+    let distance1           = ( event.target.value.getUint8(3) );
+    let distance2           = ( event.target.value.getUint8(4) );
+    let distance3           = ( event.target.value.getUint8(5) );
 
-    let accelerometerPitch = (event.target.value.getUint8(6) * 1.4);
-    let accelerometerRoll = (event.target.value.getUint8(7) * 1.4);
+    let accelerometerPitch  = (event.target.value.getUint8(6) * 1.4);
+    let accelerometerRoll   = (event.target.value.getUint8(7) * 1.4);
 
-    let ambientAverage = ( event.target.value.getUint8(8) / 8) + 70;
+    let ambientAverage      = ( event.target.value.getUint8(8) / 8) + 70;
 
-    let accelerometerX = (event.target.value.getUint8(16) / 100) - 1;
-    let accelerometerY = (event.target.value.getUint8(17) / 100) - 1;
-    let accelerometerZ = (event.target.value.getUint8(18) / 100) - 1;
+    let accelerometerX      = (event.target.value.getUint8(10) / 100) - 1;
+    let accelerometerY      = (event.target.value.getUint8(11) / 100) - 1;
+    let accelerometerZ      = (event.target.value.getUint8(12) / 100) - 1;
+
+    let batteryVal          = (event.target.value.getUint8(13) / 100) - 1;
 
     state.objectTemp[19] = objectTemp20;
     state.objectTemp[20] = objectTemp21;
@@ -230,7 +232,9 @@ class ControllerWebBluetooth{
     state.accY = accelerometerY;
     state.accZ = accelerometerZ;
 
-    console.log("Distance1: " + state.distance1);
+    state.battery = batteryVal;
+
+   // console.log("Distance1: " + state.distance1);
   }
 
 
