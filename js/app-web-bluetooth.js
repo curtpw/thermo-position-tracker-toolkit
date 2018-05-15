@@ -92,6 +92,7 @@ window.onload = function(){
     sensorController.connect();
 
     sensorController.onStateChange(function(state){
+console.log("app.js state change");
 
       accelerometerData = state.accelerometer;
       objectTempData = state.objectTemp;
@@ -130,15 +131,7 @@ window.onload = function(){
 
   function displayData(){
 
-    if(accelerometerData){
-      var accelerometerPitchDiv = document.getElementsByClassName('accelerometer-pitch-data')[0];
-      accelerometerPitchDiv.innerHTML = accelerometerData.pitch.toFixed(1);
-
-      var accelerometerRollDiv = document.getElementsByClassName('accelerometer-roll-data')[0];
-      accelerometerRollDiv.innerHTML = accelerometerData.roll.toFixed(1);
-    }
-
-    if(state.objectTemp[0] && state.pitch){ //if we have both halves of the data sample
+    if(state.objectTemp[0] /* && state.pitch */){ //if we have both halves of the data sample
       var objectTempElement1 = document.getElementsByClassName('object-temp-1-data')[0];
       objectTempElement1.innerHTML = state.objectTemp[0].toFixed(1);
 
@@ -204,8 +197,29 @@ window.onload = function(){
 
       var objectTempElement22 = document.getElementsByClassName('object-temp-22-data')[0];
       objectTempElement22.innerHTML = state.objectTemp[21].toFixed(1);
-
     }
+
+    if(state.pitch){
+      var pitchElement = document.getElementsByClassName('accelerometer-pitch-data')[0];
+      pitchElement.innerHTML = state.pitch.toFixed(1);
+
+      var rollElement = document.getElementsByClassName('accelerometer-roll-data')[0];
+      rollElement.innerHTML = state.roll.toFixed(1);  
+    }
+
+    if(state.distance1){
+      var distance1Element = document.getElementsByClassName('distance-1-data')[0];
+      distance1Element.innerHTML = state.distance1.toFixed(1);
+
+      var distance2Element = document.getElementsByClassName('distance-2-data')[0];
+      distance2Element.innerHTML = state.distance2.toFixed(1);
+
+      var distance3Element = document.getElementsByClassName('distance-3-data')[0];
+      distance3Element.innerHTML = state.distance3.toFixed(1);
+    }
+
+    
+    
 
     if(state.ambientTemp){
         var ambientTempAverageElement = document.getElementsByClassName('ambient-temp-average-data')[0];

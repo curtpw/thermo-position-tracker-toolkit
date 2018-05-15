@@ -192,11 +192,14 @@ class ControllerWebBluetooth{
     state.objectTemp[16] = objectTemp17;
     state.objectTemp[17] = objectTemp18;
     state.objectTemp[18] = objectTemp19;
+
+    console.log("ObjT1: " + state.objectTemp[0]);
    
   } else if(packetPosition == 1) {
     let objectTemp20  = ( event.target.value.getUint8(0) / 8) + 70;
     let objectTemp21  = ( event.target.value.getUint8(1) / 8) + 70;
     let objectTemp22  = ( event.target.value.getUint8(2) / 8) + 70;
+
     let distance1     = ( event.target.value.getUint8(3) );
     let distance2     = ( event.target.value.getUint8(4) );
     let distance3     = ( event.target.value.getUint8(5) );
@@ -213,6 +216,11 @@ class ControllerWebBluetooth{
     state.objectTemp[19] = objectTemp20;
     state.objectTemp[20] = objectTemp21;
     state.objectTemp[21] = objectTemp22;
+
+    state.distance1 = distance1;
+    state.distance2 = distance2;
+    state.distance3 = distance3;
+
     state.pitch = accelerometerPitch;
     state.roll = accelerometerRoll;
 
@@ -221,6 +229,8 @@ class ControllerWebBluetooth{
     state.accX = accelerometerX;
     state.accY = accelerometerY;
     state.accZ = accelerometerZ;
+
+    console.log("Distance1: " + state.distance1);
   }
 
 
