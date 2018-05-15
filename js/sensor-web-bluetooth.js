@@ -5,7 +5,8 @@
 const services = {
   controlService: {
     name: 'control service',
-    uuid: '0000a000-0000-1000-8000-00805f9b34fb'
+  //  uuid: '0000a009-0000-1000-8000-00805f9b34fb' //Thermo V1
+    uuid: '0000a000-0000-1000-8000-00805f9b34fb'  //Thermo V2
   }
 }
 
@@ -26,7 +27,8 @@ const characteristics = {
 
 var _this;
 var state = {};
-var previousPose;
+state.objectTemp = new Array(22).fill(0); 
+
 
 var sendCommandFlag = false; //global to keep track of when command is sent back to device
  let commandValue = new Uint8Array([0x01,3,0x02,0x03,0x01]);   //command to send back to device
@@ -143,7 +145,14 @@ class ControllerWebBluetooth{
     // imuData return {{orientation: {w: *, x: *, y: *, z: *}, accelerometer: Array, gyroscope: Array}}
     let imuData = event.target.value;
 
+    //last determines if we have first or second half of data
+    let packetPosition =  (event.target.value.getUint8(19));
+
     //add 65 and multiply by 7 to decompress thermopile data
+
+    if(packetPosition == 0){
+
+
     let objectTemp1   = ( event.target.value.getUint8(0) / 8) + 70;
     let objectTemp2   = ( event.target.value.getUint8(1) / 8) + 70;
     let objectTemp3   = ( event.target.value.getUint8(2) / 8) + 70;
@@ -159,18 +168,63 @@ class ControllerWebBluetooth{
     let objectTemp13  = ( event.target.value.getUint8(12) / 8) + 70;
     let objectTemp14  = ( event.target.value.getUint8(13) / 8) + 70;
     let objectTemp15  = ( event.target.value.getUint8(14) / 8) + 70;
-  //  let objectTemp16 = ( event.target.value.getUint8(15) / 7) + 70;
+    let objectTemp16  = ( event.target.value.getUint8(15) / 8) + 70;
+    let objectTemp17  = ( event.target.value.getUint8(16) / 8) + 70;
+    let objectTemp18  = ( event.target.value.getUint8(17) / 8) + 70;
+    let objectTemp19  = ( event.target.value.getUint8(18) / 8) + 70;
 
-    let ambientAverage = ( event.target.value.getUint8(16) / 8) + 70;
+    state.objectTemp[0] = objectTemp1;
+    state.objectTemp[1] = objectTemp2;
+    state.objectTemp[2] = objectTemp3;
+    state.objectTemp[3] = objectTemp4;
+    state.objectTemp[4] = objectTemp5;
+    state.objectTemp[5] = objectTemp6;
+    state.objectTemp[6] = objectTemp7;
+    state.objectTemp[7] = objectTemp8;
+    state.objectTemp[8] = objectTemp9;
+    state.objectTemp[9] = objectTemp10;
+    state.objectTemp[10] = objectTemp11;
+    state.objectTemp[11] = objectTemp12;
+    state.objectTemp[12] = objectTemp13;
+    state.objectTemp[13] = objectTemp14;
+    state.objectTemp[14] = objectTemp15;
+    state.objectTemp[15] = objectTemp16;
+    state.objectTemp[16] = objectTemp17;
+    state.objectTemp[17] = objectTemp18;
+    state.objectTemp[18] = objectTemp19;
+   
+  } else if(packetPosition == 1) {
+    let objectTemp20  = ( event.target.value.getUint8(0) / 8) + 70;
+    let objectTemp21  = ( event.target.value.getUint8(1) / 8) + 70;
+    let objectTemp22  = ( event.target.value.getUint8(2) / 8) + 70;
+    let distance1     = ( event.target.value.getUint8(3) );
+    let distance2     = ( event.target.value.getUint8(4) );
+    let distance3     = ( event.target.value.getUint8(5) );
 
- //   let accelerometerX = (event.target.value.getUint8(17) / 100) - 1;
- //   let accelerometerY = (event.target.value.getUint8(18) / 100) - 1;
- //   let accelerometerZ = (event.target.value.getUint8(19) / 100) - 1;
+    let accelerometerPitch = (event.target.value.getUint8(6) * 1.4);
+    let accelerometerRoll = (event.target.value.getUint8(7) * 1.4);
 
-    let heartRateRaw   = (event.target.value.getUint8(17) + 450);
-    let accelerometerPitch = (event.target.value.getUint8(18) * 1.4);
-    let accelerometerRoll = (event.target.value.getUint8(19) * 1.4);
+    let ambientAverage = ( event.target.value.getUint8(8) / 8) + 70;
 
+    let accelerometerX = (event.target.value.getUint8(16) / 100) - 1;
+    let accelerometerY = (event.target.value.getUint8(17) / 100) - 1;
+    let accelerometerZ = (event.target.value.getUint8(18) / 100) - 1;
+
+    state.objectTemp[19] = objectTemp20;
+    state.objectTemp[20] = objectTemp21;
+    state.objectTemp[21] = objectTemp22;
+    state.pitch = accelerometerPitch;
+    state.roll = accelerometerRoll;
+
+    state.ambientTemp = ambientAverage;
+
+    state.accX = accelerometerX;
+    state.accY = accelerometerY;
+    state.accZ = accelerometerZ;
+  }
+
+
+/*
     var data = {
       accelerometer: {
         pitch: accelerometerPitch,
@@ -209,6 +263,7 @@ class ControllerWebBluetooth{
       ambientTemp: data.ambientTemp,
       heartRate: data.heartRate
     }
+    */
 
     if(sendCommandFlag){
       sendCommandFlag = false;
@@ -237,16 +292,16 @@ class ControllerWebBluetooth{
 
     _this.onStateChangeCallback(state);
   }
-
+/*
   eventArmSynced(arm, x_direction){
     armType = (arm == 1) ? 'right' : ((arm == 2) ? 'left' : 'unknown');
     myoDirection = (x_direction == 1) ? 'wrist' : ((x_direction == 2) ? 'elbow' : 'unknown');
 
     state.armType = armType;
-    state.myoDirection = myoDirection;
 
     _this.onStateChangeCallback(state);
   }
+  */
 
   onStateChange(callback){
     _this.onStateChangeCallback = callback;

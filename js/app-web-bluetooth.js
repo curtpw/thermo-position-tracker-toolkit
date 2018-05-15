@@ -1,4 +1,28 @@
 
+/*CONVERSION FROM SPHERICAL TO CARTESIAN
+Conversion Formula
+
+Conversely spherical coordinates may be converted to Cartesian coordinates using the following formulas:
+
+break x/y/z coordinates into 7 output NN from 3 output NN
+
+​​ 
+​x=r sin(φ)cos(θ)
+​y=r sin(φ)sin(θ)
+​z=r cos(φ)
+
+*/
+
+  // !! Joystick & Distance global var
+  var xJoystick = 0;
+  var yJoystick = 0;
+  var distanceSensor = 0;
+
+  //absolute position globals
+  var xCoordinate = 0;
+  var yCoordinate = 0;
+  var zCoordinate = 0;
+
 window.onload = function(){
 
   /*******************************************************************************************************************
@@ -13,15 +37,16 @@ window.onload = function(){
       message.innerHTML = 'This browser doesn\'t support the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Bluetooth_API" target="_blank">Web Bluetooth API</a> :(';
   }
 
+
   //Absolute position 3D coordinate global var
-  var xCoordinate = 0;
-  var yCoordinate = 0; 
-  var zCoordinate = 0;
+ // var xCoordinate = 0;
+//  var yCoordinate = 0; 
+//  var zCoordinate = 0;
   var xCoordinate2 = 0;
   var yCoordinate2 = 0; 
   var zCoordinate2 = 0;
 
-  let accelerometerData, objectTempData, ambientTempData, heartRateData, poseData;
+  let accelerometerData, objectTempData, ambientTempData, heartRateData;
 
 
   //3D model arm position sample data
@@ -32,10 +57,9 @@ window.onload = function(){
 
   //master session data array of arrays
   var sensorDataSession = [];
-  var poseDataSession = [];
 
   //samples per position for display in ui
-  var sensorSamplesPerPosition = new Array(28).fill(0); 
+//  var sensorSamplesPerPosition = new Array(3).fill(0); 
 
   //which samples in the session data array are part of a particular sample set
   var sessionSampleSetIndex = [];
@@ -58,13 +82,13 @@ window.onload = function(){
   var loadNNFlag = false;
 
   //NN scores
-  var scoreArray = new Array(28).fill(0);
+  var scoreArray = new Array(12).fill(0);
 
 	var initialised = false;
 	var timeout = null;
 
   button.onclick = function(e){
-    var sensorController = new ControllerWebBluetooth("ChildMind");
+    var sensorController = new ControllerWebBluetooth("Thermo");
     sensorController.connect();
 
     sensorController.onStateChange(function(state){
@@ -85,9 +109,9 @@ window.onload = function(){
       } else {
           if(haveNNFlag1 && activeNNFlag1){  //we have a NN and we want to apply to current sensor data
               getNNScore(1);
-          } else if(loadNNFlag){
+          }  else if(loadNNFlag){  // !!! NOPE DISABLE FIRST LOADED NN
               getNNScore(1);
-          }
+          } 
           if(haveNNFlag2 && activeNNFlag2){  //we have a NN and we want to apply to current sensor data
               getNNScore(2);
           } else if(loadNNFlag){
@@ -95,6 +119,8 @@ window.onload = function(){
           }
 
       }
+
+	console.log("loadNNFlag in main loop: " + loadNNFlag);
 
       displayData();
     });
@@ -112,62 +138,78 @@ window.onload = function(){
       accelerometerRollDiv.innerHTML = accelerometerData.roll.toFixed(1);
     }
 
-    if(objectTempData){
+    if(state.objectTemp[0] && state.pitch){ //if we have both halves of the data sample
       var objectTempElement1 = document.getElementsByClassName('object-temp-1-data')[0];
-      objectTempElement1.innerHTML = objectTempData.a.toFixed(1);
+      objectTempElement1.innerHTML = state.objectTemp[0].toFixed(1);
 
       var objectTempElement2 = document.getElementsByClassName('object-temp-2-data')[0];
-      objectTempElement2.innerHTML = objectTempData.b.toFixed(1);
+      objectTempElement2.innerHTML = state.objectTemp[1].toFixed(1);
 
       var objectTempElement3 = document.getElementsByClassName('object-temp-3-data')[0];
-      objectTempElement3.innerHTML = objectTempData.c.toFixed(1);
+      objectTempElement3.innerHTML = state.objectTemp[2].toFixed(1);
 
       var objectTempElement4 = document.getElementsByClassName('object-temp-4-data')[0];
-      objectTempElement4.innerHTML = objectTempData.d.toFixed(1);
+      objectTempElement4.innerHTML = state.objectTemp[3].toFixed(1);
 
       var objectTempElement5 = document.getElementsByClassName('object-temp-5-data')[0];
-      objectTempElement5.innerHTML = objectTempData.e.toFixed(1);
+      objectTempElement5.innerHTML = state.objectTemp[4].toFixed(1);
 
       var objectTempElement6 = document.getElementsByClassName('object-temp-6-data')[0];
-      objectTempElement6.innerHTML = objectTempData.f.toFixed(1);
+      objectTempElement6.innerHTML = state.objectTemp[5].toFixed(1);
 
       var objectTempElement7 = document.getElementsByClassName('object-temp-7-data')[0];
-      objectTempElement7.innerHTML = objectTempData.g.toFixed(1);
+      objectTempElement7.innerHTML = state.objectTemp[6].toFixed(1);
 
       var objectTempElement8 = document.getElementsByClassName('object-temp-8-data')[0];
-      objectTempElement8.innerHTML = objectTempData.h.toFixed(1);
+      objectTempElement8.innerHTML = state.objectTemp[7].toFixed(1);
 
       var objectTempElement9 = document.getElementsByClassName('object-temp-9-data')[0];
-      objectTempElement9.innerHTML = objectTempData.i.toFixed(1);
+      objectTempElement9.innerHTML = state.objectTemp[8].toFixed(1);
 
       var objectTempElement10 = document.getElementsByClassName('object-temp-10-data')[0];
-      objectTempElement10.innerHTML = objectTempData.j.toFixed(1);
+      objectTempElement10.innerHTML = state.objectTemp[9].toFixed(1);
 
       var objectTempElement11 = document.getElementsByClassName('object-temp-11-data')[0];
-      objectTempElement11.innerHTML = objectTempData.k.toFixed(1);
+      objectTempElement11.innerHTML = state.objectTemp[10].toFixed(1);
 
       var objectTempElement12 = document.getElementsByClassName('object-temp-12-data')[0];
-      objectTempElement12.innerHTML = objectTempData.l.toFixed(1);
+      objectTempElement12.innerHTML = state.objectTemp[11].toFixed(1);
 
       var objectTempElement13 = document.getElementsByClassName('object-temp-13-data')[0];
-      objectTempElement13.innerHTML = objectTempData.m.toFixed(1);
+      objectTempElement13.innerHTML = state.objectTemp[12].toFixed(1);
 
       var objectTempElement14 = document.getElementsByClassName('object-temp-14-data')[0];
-      objectTempElement14.innerHTML = objectTempData.n.toFixed(1);
+      objectTempElement14.innerHTML = state.objectTemp[13].toFixed(1);
 
       var objectTempElement15 = document.getElementsByClassName('object-temp-15-data')[0];
-      objectTempElement15.innerHTML = objectTempData.o.toFixed(1);
+      objectTempElement15.innerHTML = state.objectTemp[14].toFixed(1);
+
+      var objectTempElement16 = document.getElementsByClassName('object-temp-16-data')[0];
+      objectTempElement16.innerHTML = state.objectTemp[15].toFixed(1);
+
+      var objectTempElement17 = document.getElementsByClassName('object-temp-17-data')[0];
+      objectTempElement17.innerHTML = state.objectTemp[16].toFixed(1);
+
+      var objectTempElement18 = document.getElementsByClassName('object-temp-18-data')[0];
+      objectTempElement18.innerHTML = state.objectTemp[17].toFixed(1);
+
+      var objectTempElement19 = document.getElementsByClassName('object-temp-19-data')[0];
+      objectTempElement19.innerHTML = state.objectTemp[18].toFixed(1);
+
+      var objectTempElement20 = document.getElementsByClassName('object-temp-20-data')[0];
+      objectTempElement20.innerHTML = state.objectTemp[19].toFixed(1);
+
+      var objectTempElement21 = document.getElementsByClassName('object-temp-21-data')[0];
+      objectTempElement21.innerHTML = state.objectTemp[20].toFixed(1);
+
+      var objectTempElement22 = document.getElementsByClassName('object-temp-22-data')[0];
+      objectTempElement22.innerHTML = state.objectTemp[21].toFixed(1);
 
     }
 
-    if(ambientTempData){
-      var ambientTempAverageElement = document.getElementsByClassName('ambient-temp-average-data')[0];
-      ambientTempAverageElement.innerHTML = ambientTempData.a;
-    }
-
-    if(heartRateData){
-      var rawHeartRateData = document.getElementsByClassName('raw-ppg-heart-data')[0];
-      rawHeartRateData.innerHTML = heartRateData.a;
+    if(state.ambientTemp){
+        var ambientTempAverageElement = document.getElementsByClassName('ambient-temp-average-data')[0];
+        ambientTempAverageElement.innerHTML = state.ambientTemp;
     }
 
   }
@@ -175,29 +217,28 @@ window.onload = function(){
   function getSensorData(){
 
     if(objectTempData){
-      sensorDataArray[0] = objectTempData.a.toFixed(1);
-      sensorDataArray[1] = objectTempData.b.toFixed(1); //no T2
-      sensorDataArray[2] = objectTempData.c.toFixed(1);
-      sensorDataArray[3] = objectTempData.d.toFixed(1);  //no T4
-      sensorDataArray[4] = objectTempData.e.toFixed(1);
-      sensorDataArray[5] = objectTempData.f.toFixed(1);
-      sensorDataArray[6] = objectTempData.g.toFixed(1);
-      sensorDataArray[7] = objectTempData.h.toFixed(1); //no T8
-      sensorDataArray[8] = objectTempData.i.toFixed(1);
-      sensorDataArray[9] = objectTempData.j.toFixed(1);
-      sensorDataArray[10] = objectTempData.k.toFixed(1);  //no T11
-      sensorDataArray[11] = objectTempData.l.toFixed(1);
-      sensorDataArray[12] = objectTempData.m.toFixed(1); 
-      sensorDataArray[13] = objectTempData.n.toFixed(1); //no T14
-      sensorDataArray[14] = objectTempData.o.toFixed(1);
-  
+	    sensorDataArray[0] = state.objectTemp[0].toFixed(1);
+	    sensorDataArray[1] = state.objectTemp[1].toFixed(1); 
+	    sensorDataArray[2] = state.objectTemp[2].toFixed(1);
+	    sensorDataArray[3] = state.objectTemp[3].toFixed(1); 
+	    sensorDataArray[4] = state.objectTemp[4].toFixed(1);
+	    sensorDataArray[5] = state.objectTemp[5].toFixed(1);
+	    sensorDataArray[6] = state.objectTemp[6].toFixed(1);
+	    sensorDataArray[7] = state.objectTemp[7].toFixed(1); 
+	    sensorDataArray[8] = state.objectTemp[8].toFixed(1);
+	    sensorDataArray[9] = state.objectTemp[9].toFixed(1);
+	    sensorDataArray[10] = state.objectTemp[10].toFixed(1);  
+	    sensorDataArray[11] = state.objectTemp[11].toFixed(1);
+	    sensorDataArray[12] = state.objectTemp[12].toFixed(1); 
+	    sensorDataArray[13] = state.objectTemp[13].toFixed(1); 
+	    sensorDataArray[14] = state.objectTemp[14].toFixed(1);
     }
     if(ambientTempData){
-      sensorDataArray[15] = ambientTempData.a.toFixed(1);
+      	sensorDataArray[15] = state.ambientTemp.toFixed(1);
     } 
     if(accelerometerData){
-      sensorDataArray[16] = accelerometerData.pitch.toFixed(1);
-	    sensorDataArray[17] = accelerometerData.roll.toFixed(1); 
+      	sensorDataArray[16] = state.pitch.toFixed(1);
+	    sensorDataArray[17] = state.roll.toFixed(1); 
     }
 
   }
@@ -237,23 +278,24 @@ window.onload = function(){
   //	  sensorDataArray = new Array(18).fill(0); 
    //   getSensorData();
 
-      var collectedDataArray =  new Array(19).fill(0);  
+    //  var collectedDataArray =  new Array(19).fill(0);
+      var collectedDataArray =  new Array(21).fill(0);  //18 device + 3 joystick jig
       collectedDataArray = sensorDataArray;
-      var positionNumber = $('#master-pose-input').val() - 1;
+    //  var positionNumber = $('#master-pose-input').val() - 1;
 
       //add pose # to first element of sensor data array
-      collectedDataArray.unshift( positionNumber );
+   //   collectedDataArray.unshift( positionNumber );
+
+   //!!!!!!!!!!!!!!!!!!!!!!!!!! ADD JOYSTICK JIG DATA TO END!
+   //!!!!!!!!!!!!!!!!!!!!!!!!!! ADD JOYSTICK JIG DATA TO END!
+   //!!!!!!!!!!!!!!!!!!!!!!!!!! ADD JOYSTICK JIG DATA TO END!
+      collectedDataArray[18] = xJoystick.toFixed(4);
+      collectedDataArray[19] = yJoystick.toFixed(4);
+      collectedDataArray[20] = distanceSensor.toFixed(4);
 
       console.log("web bluetooth sensor data:");
 
       console.dir(collectedDataArray);
-
-      //add to samples per pose count array
-      sensorSamplesPerPosition[positionNumber] = sensorSamplesPerPosition[positionNumber] + 1;
-
-      var labelNumber = positionNumber + 1;
-
-      $("div.console .pose" + labelNumber).html("&nbsp;&nbsp;P" + labelNumber + ":" + "<span>" + sensorSamplesPerPosition[positionNumber] + "</span>");
 
       //add sample to set
       sensorDataSession.push(collectedDataArray);
@@ -265,10 +307,16 @@ window.onload = function(){
 
       getSamplesFlag = getSamplesFlag - 1;
 
+      if(getSamplesFlag > 0){
+          //console messages
+	      var consoleSamples = document.getElementsByClassName('console-samples')[0];
+	      consoleSamples.innerHTML = sensorDataSession.length;
+	  }
+
       if(getSamplesFlag == 0){
           //console messages
-          var consoleSamples = document.getElementsByClassName('console-samples')[0];
-          consoleSamples.innerHTML = sensorDataSession.length;
+      //    var consoleSamples = document.getElementsByClassName('console-samples')[0];
+      //    consoleSamples.innerHTML = sensorDataSession.length;
 
           var consoleSamples = document.getElementsByClassName('console-sets')[0];
           consoleSamples.innerHTML = numSets;
@@ -290,7 +338,7 @@ window.onload = function(){
   var Trainer = synaptic.Trainer;
   var Architect = synaptic.Architect;
   //var neuralNet = new Architect.LSTM(19, 75, 75);
-  var neuralNet = new Architect.LSTM(10, 28, 28);
+  var neuralNet = new Architect.LSTM(12, 7, 7, 12);
   var trainer = new Trainer(neuralNet);
   var trainingData;
 
@@ -301,15 +349,15 @@ window.onload = function(){
   });
 
   $('#activate-btn').click(function() {
-    console.log("activate button"); 
-    activeNNFlag1 = true;
-    $('#activate-btn').toggleClass("activatedNN");
+      console.log("activate button"); 
+      activeNNFlag1 = true;
+      $('#activate-btn').toggleClass("activatedNN");
 
-    //if leaded NN, turn off
-    if(loadNNFlag){
+      //if loaded NN, turn off
+      if(loadNNFlag){
           loadNNFlag = false;
           $('#load-nn-btn').toggleClass("activatedNN");
-    }
+      }
   });
 
     // ************* NEURAL NET #2
@@ -319,7 +367,7 @@ window.onload = function(){
   var Trainer2 = synaptic.Trainer;
   var Architect2 = synaptic.Architect;
   //var neuralNet = new Architect.LSTM(19, 75, 75);
-  var neuralNet2 = new Architect2.LSTM(12, 6, 28);
+  var neuralNet2 = new Architect2.LSTM(12, 4, 4, 12);
   var trainer2 = new Trainer2(neuralNet2);
   var trainingData2;
 
@@ -330,54 +378,30 @@ window.onload = function(){
   });
 
   $('#activate2-btn').click(function() {
-    console.log("activate button"); 
-    activeNNFlag2 = true;
-    $('#activate2-btn').toggleClass("activatedNN");
+      console.log("activate button"); 
+      activeNNFlag2 = true;
+      $('#activate2-btn').toggleClass("activatedNN");
 
-    //if leaded NN, turn off
-    if(loadNNFlag){
+      //if leaded NN, turn off
+      if(loadNNFlag){
           loadNNFlag = false;
           $('#load-nn-btn').toggleClass("activatedNN");
-    }
+      }
   });
 
 
   // ************* LOAD TWO EXPORTED NEURAL NET ACTIVATION FUNCTIONS AND WEIGHTS
-    $('#load-nn-btn').click(function() {
-    console.log("load exported NN button"); 
-    loadNNFlag = true;
-    $('#load-nn-btn').toggleClass("activatedNN");
+  $('#load-nn-btn').click(function() {
+      console.log("load exported NN button"); 
+      loadNNFlag = true;
+      $('#load-nn-btn').toggleClass("activatedNN");
   });
 
 
 
 function getNNScore(selectNN){
-//	scoreArray = new Array(75).fill(0);
 
-  var firstPlace = {position: 0, score: 0}; 
-  var secondPlace = {position: 0, score: 0};  
-  var thirdPlace = {position: 0, score: 0}; 
-
-  scoreArray = new Array(28).fill(0);
-
-/*	var feedArray = new Array(10).fill(0);
-		    feedArray[0] = sensorDataArray[0] / 101;
-        feedArray[1] = sensorDataArray[1] / 101;
-        feedArray[2] = sensorDataArray[2] / 101;
-        feedArray[3] = sensorDataArray[3] / 101;
-        feedArray[4] = sensorDataArray[4] / 101;
-        feedArray[5] = sensorDataArray[5] / 101;
-        feedArray[6] = sensorDataArray[6] / 101;
-        feedArray[7] = sensorDataArray[7] / 101;
-        feedArray[8] = sensorDataArray[8] / 101;
-        feedArray[9] = sensorDataArray[9] / 101;
-    //    feedArray[10] = sensorDataArray[10] / 101;
-    //    feedArray[11] = sensorDataArray[11] / 101;
-    //    feedArray[12] = sensorDataArray[12] / 101;
-    //    feedArray[13] = sensorDataArray[13] / 101;
-    //    feedArray[14] = sensorDataArray[14] / 101;
-    //    feedArray[10] = sensorDataArray[10] / 360;
-    //    feedArray[11] = sensorDataArray[11] / 360;  */
+  scoreArray = new Array(12).fill(0);
 
     if(selectNN == 1){
         var feedArray = new Array(12).fill(0);
@@ -396,6 +420,7 @@ function getNNScore(selectNN){
             feedArray[8] = sensorDataArray[12] / 101;
       //      positionFeedArray[13] = sensorDataArray[13] / 101;
             feedArray[9] = sensorDataArray[14] / 101;
+            // sensorDataArray[15] is ambient Temp
             feedArray[10] = sensorDataArray[16] / 360;
             feedArray[11] = sensorDataArray[17] / 360;
 
@@ -426,6 +451,7 @@ function getNNScore(selectNN){
             feedArray[8] = sensorDataArray[12] / 101;
       //      positionFeedArray[13] = sensorDataArray[13] / 101;
             feedArray[9] = sensorDataArray[14] / 101;
+            // sensorDataArray[15] is ambient Temp
             feedArray[10] = sensorDataArray[16] / 360;
             feedArray[11] = sensorDataArray[17] / 360;
 
@@ -439,217 +465,80 @@ function getNNScore(selectNN){
         console.log("NN2 SCORE ARRAY: " + scoreArray);
     } 
 
-
-    for(var i=0; i<28;i++){
-
-        var scoreForColor = scoreArray[i];
-        var $theSpot;
-
-        if(scoreForColor > firstPlace.score  )
-        {
-            thirdPlace.position = secondPlace.position;
-            thirdPlace.score = secondPlace.score;
-            secondPlace.position = firstPlace.position;
-            secondPlace.score = firstPlace.score;
-            firstPlace.position = i + 1;
-            firstPlace.score = scoreForColor;
-        } else if(scoreForColor > secondPlace.score && firstPlace.position != (i + 1) )
-        {
-            thirdPlace.position = secondPlace.position;
-            thirdPlace.score = secondPlace.score;
-            secondPlace.score = scoreForColor;
-            secondPlace.position = i + 1;
-        } else if(scoreForColor > thirdPlace.score && firstPlace.position != (i + 1) && secondPlace.position != (i + 1) )
-        {
-            thirdPlace.score = scoreForColor;
-            thirdPlace.position = i + 1;
-        }
-
-        if(i==0){
-          $theSpot = $("div.heat-index1.NN" + selectNN);
-        } else if(i==1){
-          $theSpot = $("div.heat-index2.NN" + selectNN);
-        } else if(i==2){
-          $theSpot = $("div.heat-index3.NN" + selectNN);
-        } else if(i==3){
-          $theSpot = $("div.heat-index4.NN" + selectNN);
-        } else if(i==4){
-          $theSpot = $("div.heat-index5.NN" + selectNN);
-        } else if(i==5){
-          $theSpot = $("div.heat-index6.NN" + selectNN);
-        } else if(i==6){
-          $theSpot = $("div.heat-index7.NN" + selectNN);
-        } else if(i==7){
-          $theSpot = $("div.heat-index8.NN" + selectNN);
-        } else if(i==8){
-          $theSpot = $("div.heat-index9.NN" + selectNN);
-        } else if(i==9){
-          $theSpot = $("div.heat-index10.NN" + selectNN);
-        } else if(i==10){
-          $theSpot = $("div.heat-index11.NN" + selectNN);
-        } else if(i==11){
-          $theSpot = $("div.heat-index12.NN" + selectNN);
-        } else if(i==12){
-          $theSpot = $("div.heat-index13.NN" + selectNN);
-        } else if(i==13){
-          $theSpot = $("div.heat-index14.NN" + selectNN);
-        } else if(i==14){
-          $theSpot = $("div.heat-index15.NN" + selectNN);
-        } else if(i==15){
-          $theSpot = $("div.heat-index16.NN" + selectNN);
-        } else if(i==16){
-          $theSpot = $("div.heat-index17.NN" + selectNN);
-        } else if(i==17){
-          $theSpot = $("div.heat-index18.NN" + selectNN);
-        } else if(i==18){
-          $theSpot = $("div.heat-index19.NN" + selectNN);
-        } else if(i==19){
-          $theSpot = $("div.heat-index20.NN" + selectNN);
-        } else if(i==20){
-          $theSpot = $("div.heat-index21.NN" + selectNN);
-        } else if(i==21){
-          $theSpot = $("div.heat-index22.NN" + selectNN);
-        } else if(i==22){
-          $theSpot = $("div.heat-index23.NN" + selectNN);
-        } else if(i==23){
-          $theSpot = $("div.heat-index24.NN" + selectNN);
-        } else if(i==24){
-          $theSpot = $("div.heat-index25.NN" + selectNN);
-        } else if(i==25){
-          $theSpot = $("div.heat-index26.NN" + selectNN);
-        } else if(i==26){
-          $theSpot = $("div.heat-index27.NN" + selectNN);
-        } else if(i==27){
-          $theSpot = $("div.heat-index28.NN" + selectNN);
-        }
-
-
-
-        if(scoreForColor > 0.95){
-          $theSpot.css("color", "rgb(255,0,0)");
-        } else if(scoreForColor > 0.9){
-          $theSpot.css("color",  "rgb(255,64,0)");
-        } else if(scoreForColor > 0.85){
-          $theSpot.css("color", "rgb(255,126,0)");
-        } else if(scoreForColor > 0.8){
-          $theSpot.css("color", "rgb(255,191,0)");
-        } else if(scoreForColor > 0.75){
-          $theSpot.css("color",  "rgb(255,255,0)");
-        } else if(scoreForColor > 0.7){
-          $theSpot.css("color", "rgb(191,255,0)");
-        } else if(scoreForColor > 0.6){
-          $theSpot.css("color", "rgb(126,255,0)");
-        } else if(scoreForColor > 0.55){
-          $theSpot.css("color", "rgb(64,255,0)");
-        } else if(scoreForColor > 0.5){
-          $theSpot.css("color", "rgb(0,255,0)");
-        } else if(scoreForColor > 0.45){
-          $theSpot.css("color", "rgb(0,255,64)");
-        } else if(scoreForColor > 0.4){
-          $theSpot.css("color", "rgb(0,255,126)");
-        } else if(scoreForColor > 0.35){
-          $theSpot.css("color", "rgb(0,255,191)");
-        } else if(scoreForColor > 0.3){
-          $theSpot.css("color", "rgb(0,255,255)");
-        } else if(scoreForColor > 0.25){
-          $theSpot.css("color", "rgb(0,191,255)");
-        } else if(scoreForColor > 0.2){
-          $theSpot.css("color", "rgb(0,126,255)");
-        } else if(scoreForColor > 0.15){
-          $theSpot.css("color", "rgb(0,64,255)");
-        } else if(scoreForColor > 0.1){
-          $theSpot.css("color", "rgb(0,0,255)");
-        } else if(scoreForColor > 0.05){
-          $theSpot.css("color", "rgb(0,0,126)");
-        } else if(scoreForColor > 0.01){
-          $theSpot.css("color", "rgb(0,0,64)");
-        } else {
-          $theSpot.css("color", "#6b6b6b");
-        } 
-    }
-    getCoordinates(scoreArray, firstPlace, secondPlace, thirdPlace, selectNN);
+    getCoordinates(scoreArray, selectNN);
+    
 }
 
-  function getCoordinates(scoreArray, firstPlace, secondPlace, thirdPlace, selectNN){
-      var positionCoordinates = [
-        {x: 0,   y: 100, z: 100}, 	//1
-        {x: 0,   y: 100, z: 0},   	//2
-        {x: 33,  y: 100, z: 100}, 	//3
-        {x: 33,  y: 100, z: 0},   	//4
-        {x: 66,  y: 100, z: 100}, 	//5
-        {x: 66,  y: 100, z: 0},   	//6
-        {x: 100, y: 100, z: 100}, 	//7
-        {x: 100, y: 100, z: 0},		//8
+function getCoordinates(scoreArray, selectNN){
 
-        {x: 0,   y: 50,  z: 100}, 	//9
-        {x: 0,   y: 50,  z: 50}, 	//10
-        {x: 0,   y: 50,  z: 0},		//11
-        {x: 33,  y: 50,  z: 100}, 	//12
-        {x: 33,  y: 50,  z: 50}, 	//13
-        {x: 33,  y: 50,  z: 0},		//14
-        {x: 66,  y: 50,  z: 100}, 	//15
-        {x: 66,  y: 50,  z: 50}, 	//16
-        {x: 66,  y: 50,  z: 0},		//17
-        {x: 100, y: 50,  z: 100}, 	//18
-        {x: 100, y: 50,  z: 50},	//19
-        {x: 100, y: 50,  z: 0},   	//20
+    var tempScoreArray = new Array(3).fill(0);  //for recombined x/y/z
+   // tempScoreArray = scoreArray;
 
-        {x: 0,   y: 0,   z: 100}, 	//21
-        {x: 0,   y: 0,   z: 0},		//22
-        {x: 33,  y: 0,   z: 100}, 	//23
-        {x: 33,  y: 0,   z: 0},		//24
-        {x: 66,  y: 0,   z: 100}, 	//25
-        {x: 66,  y: 0,   z: 0},		//26
-        {x: 100, y: 0,   z: 100}, 	//27
-        {x: 100, y: 0,   z: 0}		//28
-      ];
-      var xCoordinateNew = ((firstPlace.score * positionCoordinates[firstPlace.position-1].x)*2 + (secondPlace.score * positionCoordinates[secondPlace.position-1].x)*1.5 + (thirdPlace.score * positionCoordinates[thirdPlace.position-1].x)) / (firstPlace.score*2 + secondPlace.score*1.5 + thirdPlace.score);
-      var yCoordinateNew = ((firstPlace.score * positionCoordinates[firstPlace.position-1].y)*2 + (secondPlace.score * positionCoordinates[secondPlace.position-1].y)*1.5 + (thirdPlace.score * positionCoordinates[thirdPlace.position-1].y)) / (firstPlace.score*2 + secondPlace.score*1.5 + thirdPlace.score);
-      var zCoordinateNew = ((firstPlace.score * positionCoordinates[firstPlace.position-1].z)*2 + (secondPlace.score * positionCoordinates[secondPlace.position-1].z)*1.5 + (thirdPlace.score * positionCoordinates[thirdPlace.position-1].z)) / (firstPlace.score*2 + secondPlace.score*1.5 + thirdPlace.score);
-      
-      var numeratorX = 0; var numeratorY = 0; var numeratorZ = 0; var denominatorX = 0; var denominatorY = 0; var denominatorZ = 0; var currentScore;
+   // X axis
+    tempScoreArray[0] = ( scoreArray[0] + scoreArray[1] + scoreArray[2] + scoreArray[3] + scoreArray[4] + scoreArray[5] + scoreArray[6] + scoreArray[7]) / 8;
 
-    for(var i=0; i<28;i++){
-        currentScore = scoreArray[i];
+    // Y axis
+    tempScoreArray[1] = ( scoreArray[8] + scoreArray[9] ) / 2 ;
 
-        if(currentScore > 0.04){ //cutoff for score to count
-          numeratorX = numeratorX + (currentScore * positionCoordinates[i].x);
-          numeratorY = numeratorY + (currentScore * positionCoordinates[i].y);
-          numeratorZ = numeratorZ + (currentScore * positionCoordinates[i].z);
+    // Z axis
+    tempScoreArray[2] = ( scoreArray[10] + scoreArray[11] ) / 2;
 
-          denominatorX = denominatorX + currentScore;
-          denominatorY = denominatorY + currentScore;
-          denominatorZ = denominatorZ + currentScore;
-        }
-    }
-    var xCoordinateNew2 = numeratorX / denominatorX;
-    var yCoordinateNew2 = numeratorY / denominatorY;
-    var zCoordinateNew2 = numeratorZ / denominatorZ;
+    console.log("RECOMBINED SCORES: " + tempScoreArray);
 
-      //smooth by averaging with last coordinate
-      xCoordinate = (xCoordinate*3 + xCoordinateNew)/4;
-      yCoordinate = (yCoordinate*3 + yCoordinateNew)/4;
-      zCoordinate = (zCoordinate*3 + zCoordinateNew)/4;
 
-      //smooth by averaging with last coordinate
-      xCoordinate2 = (xCoordinate*3 + xCoordinateNew2)/4;
-      yCoordinate2 = (yCoordinate*3 + yCoordinateNew2)/4;
-      zCoordinate2 = (zCoordinate*3 + zCoordinateNew2)/4;
+    //ADJUST VALUES FOR OUTPUT RANGE
+    //X axis
+    if(tempScoreArray[0] < 0.60){ tempScoreArray[0] = 0.60; }
+    if(tempScoreArray[0] > 0.80){ tempScoreArray[0] = 0.80; }
+ //   if(xCoordinate > 30) xCoordinate = 30;
+    tempScoreArray[0] = (tempScoreArray[0] - 0.60) * (1 / (0.80 - 0.60) ) ; 
+
+    // Z axis
+    if(tempScoreArray[2] < 0.5){ tempScoreArray[2] = 0.5; }
+    if(tempScoreArray[2] > 0.7){ tempScoreArray[2] = 0.7; }
+
+    tempScoreArray[2] = (tempScoreArray[2] - 0.5) * (1 / (0.7 - 0.5) );
+
+    console.log("ADJUSTED SCORES: " + tempScoreArray);
+
+    
+
+
+
+  	//interpret directly as cartesian coordinates
+  	xCoordinate = ( ( 1 - tempScoreArray[0] ) * 100   + xCoordinate*2) / 3;
+    yCoordinate = ( ( 1 - tempScoreArray[1] ) * 100   + yCoordinate*2) / 3;
+    zCoordinate = ( ( 1 - tempScoreArray[2] ) * 100   + zCoordinate*2) / 3;
+
+
+    console.log(" x/y/z: " + xCoordinate + "  " + yCoordinate + "  " + zCoordinate);
+
+
+
+    //convert from spherical coordinates to cartesian coordinates
+ /*   var theta = scoreArray[0] * 100;
+    var phi = 100 - ( scoreArray[1] * 100 );
+    var radius = scoreArray[2] * 100;
+
+    var xCoordinate2 = radius * Math.sin(theta) * Math.cos(phi);
+    var yCoordinate2 = radius * Math.sin(theta) * Math.sin(phi);
+    var zCoordinate2 = radius * Math.cos(theta); */
+    
+
 
       if(selectNN == 1){
           $("#coordinates1").html("X1A: <p>" + xCoordinate.toFixed(1) + "</p>   Y1A: <p>" + yCoordinate.toFixed(1) + "</p>   Z1A: <p>" + zCoordinate.toFixed(1) + "</p>");
-          $("#coordinates2").html("X1B: <p>" + xCoordinate2.toFixed(1) + "</p>   Y1B: <p>" + yCoordinate2.toFixed(1) + "</p>   Z1B: <p>" + zCoordinate2.toFixed(1) + "</p>");
-          $("#absolute-position1").css({"top": (80 - yCoordinate) + "%", "left": xCoordinate + "%", "font-size": ((100 - zCoordinate) / 6 + 5) + "rem"});
-          $("#absolute-position2").css({"top": (80 - yCoordinate2) + "%", "left": xCoordinate2 + "%", "font-size": ((100 - zCoordinate2) / 6 + 5) + "rem"});
+       //   $("#coordinates2").html("X1B: <p>" + xCoordinate2.toFixed(1) + "</p>   Y1B: <p>" + yCoordinate2.toFixed(1) + "</p>   Z1B: <p>" + zCoordinate2.toFixed(1) + "</p>");
+          $("#absolute-position1").css({"top": (yCoordinate) + "%", "left": xCoordinate + "%", "font-size": ((zCoordinate) / 5 + 5) + "rem"});
+       //   $("#absolute-position2").css({"top": (80 - yCoordinate2) + "%", "left": xCoordinate2 + "%", "font-size": ((100 - zCoordinate2) / 6 + 5) + "rem"});
       } else if(selectNN == 2) {
           $("#coordinates3").html("X2A: <p>" + xCoordinate.toFixed(1) + "</p>   Y2A: <p>" + yCoordinate.toFixed(1) + "</p>   Z2A: <p>" + zCoordinate.toFixed(1) + "</p>");
-          $("#coordinates4").html("X2B: <p>" + xCoordinate2.toFixed(1) + "</p>   Y2B: <p>" + yCoordinate2.toFixed(1) + "</p>   Z2B: <p>" + zCoordinate2.toFixed(1) + "</p>");
-          $("#absolute-position3").css({"top": (80 - yCoordinate) + "%", "left": xCoordinate + "%", "font-size": ((100 - zCoordinate) / 6 + 5) + "rem"});
-          $("#absolute-position4").css({"top": (80 - yCoordinate2) + "%", "left": xCoordinate2 + "%", "font-size": ((100 - zCoordinate2) / 6 + 5) + "rem"});
+      //    $("#coordinates4").html("X2B: <p>" + xCoordinate2.toFixed(1) + "</p>   Y2B: <p>" + yCoordinate2.toFixed(1) + "</p>   Z2B: <p>" + zCoordinate2.toFixed(1) + "</p>");
+          $("#absolute-position3").css({"top": (yCoordinate) + "%", "left": xCoordinate + "%", "font-size": ((zCoordinate) / 5 + 5) + "rem"});
+      //    $("#absolute-position4").css({"top": (80 - yCoordinate2) + "%", "left": xCoordinate2 + "%", "font-size": ((100 - zCoordinate2) / 6 + 5) + "rem"});
       }
 
-      console.log("FIRST: " + firstPlace.position + " SECOND: " + secondPlace.position + " THIRD: " + thirdPlace.position + " --> NN# " + selectNN);
-
+    //  console.log("NN# " + selectNN);
   }
 
   $('#export-btn').click(function() {
@@ -684,99 +573,247 @@ function getNNScore(selectNN){
 /**************************** TRAIN NN ******************************/
 function trainNN(selectNN){
 
-  var trainingData = [];
+    var processedDataSession = sensorDataSession;
+    var trainingData = [];
 
-    for(var i=0; i<sensorDataSession.length; i++){
+    /******************* PRE-PROCESSING DATA ************************/
+    /******************* PRE-PROCESSING DATA ************************/
+    var minMaxAreaSize = processedDataSession.length * 0.01; //sample edge size for average min or max over that area
 
-        var currentSample = sensorDataSession[i];
-        var currentPosition = currentSample[0];
+    console.log("SIZE OF UNPROCESSED SESSION DATA: " + processedDataSession.length);
+    console.log("SIZE OF EDGE TO BE TRIMMED FROM DATA: " + minMaxAreaSize);
 
-        //all positions are false except for the position sample sensor data relates to
-     //   var outputArray = new Array(75).fill(0);
 
-        var outputArray = new Array(28).fill(0);
+/*  SKIP TRIM
 
-        //the position at which sample was taken is true
-        outputArray[currentPosition] = 1; 
 
- /*       if(selectNN == 1){
-            var inputArray = new Array(10).fill(0);
-            inputArray[0] = sensorDataArray[0] / 101;
-      //      positionFeedArray[1] = sensorDataArray[1] / 101;
-            inputArray[1] = sensorDataArray[2] / 101;
-      //      positionFeedArray[3] = sensorDataArray[3] / 101;
-            inputArray[2] = sensorDataArray[4] / 101;
-            inputArray[3] = sensorDataArray[5] / 101;
-            inputArray[4] = sensorDataArray[6] / 101;
-      //      positionFeedArray[7] = sensorDataArray[7] / 101;
-            inputArray[5] = sensorDataArray[8] / 101;
-            inputArray[6] = sensorDataArray[9] / 101;
-      //      positionFeedArray[10] = sensorDataArray[10] / 101;
-            inputArray[7] = sensorDataArray[11] / 101;
-            inputArray[8] = sensorDataArray[12] / 101;
-      //      positionFeedArray[13] = sensorDataArray[13] / 101;
-            inputArray[9] = sensorDataArray[14] / 101;
+    var dataMaximums = new Array(3).fill(0);
+    var dataMinimums = new Array(3).fill(0);
+ //   var minX = findAreaMinimum(processedDataSession, minMaxAreaSize);
 
-        } else if(selectNN == 2){
+    //sort session data to get maximums, minimums and trim from edges
+    //from https://stackoverflow.com/questions/2793847/sort-outer-array-based-on-values-in-inner-array-javascript
+    for(var index = 18; index < 21; index++){
 
-            var inputArray = new Array(12).fill(0);
-            inputArray[0] = sensorDataArray[0] / 101;
-      //      positionFeedArray[1] = sensorDataArray[1] / 101;
-            inputArray[1] = sensorDataArray[2] / 101;
-      //      positionFeedArray[3] = sensorDataArray[3] / 101;
-            inputArray[2] = sensorDataArray[4] / 101;
-            inputArray[3] = sensorDataArray[5] / 101;
-            inputArray[4] = sensorDataArray[6] / 101;
-      //      positionFeedArray[7] = sensorDataArray[7] / 101;
-            inputArray[5] = sensorDataArray[8] / 101;
-            inputArray[6] = sensorDataArray[9] / 101;
-      //      positionFeedArray[10] = sensorDataArray[10] / 101;
-            inputArray[7] = sensorDataArray[11] / 101;
-            inputArray[8] = sensorDataArray[12] / 101;
-      //      positionFeedArray[13] = sensorDataArray[13] / 101;
-            inputArray[9] = sensorDataArray[14] / 101;
-            inputArray[10] = sensorDataArray[15] / 360;
-            inputArray[11] = sensorDataArray[16] / 360;
+        console.log("INDEX OF GAMEPAD DATA x/3 CURRENTLY BEING SORTED: " + index);
+
+        //get array of max values
+        processedDataSession.sort((function(index){
+            return function(a, b){
+                return (a[index] === b[index] ? 0 : (a[index] < b[index] ? -1 : 1));
+            };
+        })(index)); //  is the index
+
+        //slice ends off session data to remove max and min edge cases
+        processedDataSession = processedDataSession.slice(minMaxAreaSize, processedDataSession.length - minMaxAreaSize);
+
+        //get rid of values that may have come from maxed out sensor range, things that are too close to 0 or 1
+        for(var f = 0; f < processedDataSession.length; f++){
+
+            //get rid of values that are too high
+            if(processedDataSession[processedDataSession.length-1][index] > 0.99){
+                processedDataSession = processedDataSession.slice(0, processedDataSession.length - 1);
+            }
+
+            //get rid of values that are too low
+            if(processedDataSession[0][index] < 0.01){
+                processedDataSession = processedDataSession.slice(1, processedDataSession.length);
+            }
+        }
+
+        //get max and min from ends of trimmed data, take a little more off incase sensors exceeded max range a bunch of times
+        dataMinimums[index - 18] = processedDataSession[0][index];
+        dataMaximums[index - 18] = processedDataSession[processedDataSession.length - 1][index];
+
+    }
+
+    //map data to new min and max to span full 0-1 NN normal range
+    for(var p = 0; p < processedDataSession.length; p++){
+
+        processedDataSession[p][18] = ( processedDataSession[p][18] - dataMinimums[0] ) * ( 1 / ( dataMaximums[0] - dataMinimums[0] ) );
+        processedDataSession[p][19] = ( processedDataSession[p][19] - dataMinimums[1] ) * ( 1 / ( dataMaximums[1] - dataMinimums[1] ) );
+        processedDataSession[p][20] = ( processedDataSession[p][20] - dataMinimums[2] ) * ( 1 / ( dataMaximums[2] - dataMinimums[2] ) );
+
+    }
+
+    console.log("MINIMUM VALUES: " + dataMinimums);
+    console.log("MAXIMUM VALUES: " + dataMaximums);
+    console.log("SIZE OF SORTED, TRIMMED AND MAPPED DATA: " + processedDataSession.length);
+    console.log("SORTED, TRIMMED AND MAPPED DATA: " + processedDataSession);
+
+    */
+
+
+    /******************* END PRE-PROCESSING DATA ********************/
+    /******************* END PRE-PROCESSING DATA ********************/
+
+
+    for(var i=0; i<processedDataSession.length; i++){
+
+        var currentSample = processedDataSession[i];
+
+
+// HERE IS WHERE WE SPLIT SPLAT SLICE DICE !!!!!!!!!!!!!!!!!!!!!!!!!
+// HERE IS WHERE WE SPLIT SPLAT SLICE DICE !!!!!!!!!!!!!!!!!!!!!!!!!
+// HERE IS WHERE WE SPLIT SPLAT SLICE DICE !!!!!!!!!!!!!!!!!!!!!!!!!
+        var outputArray = new Array(12).fill(0);     // 1-6 --> X   7-8 --> Y  9-10 --> Z
+
+        //!!!  JOYSTICK JIG DATA !!!
+     //   outputArray[0] = currentSample[18];
+     //   outputArray[1] = currentSample[19];
+     //   outputArray[2] = currentSample[20];
+
+        // X axis
+   /*     if(currentSample[18] < 0.33333){
+        	outputArray[0] = currentSample[18] * 3;
+        	outputArray[1] = 0;
+        	outputArray[2] = 0;
+        } else if(currentSample[18] >= 0.33333 && currentSample[18] < 0.66666){
+        	outputArray[0] = 1;
+        	outputArray[1] = (currentSample[18] - 0.33333) * 3;
+        	outputArray[2] = 0;
+        } else {
+        	outputArray[0] = 1;
+        	outputArray[1] = 1;
+        	outputArray[2] = (currentSample[18] - 0.66666) * 3;
         } */
 
+        // X axis
+        if(currentSample[18] < 0.125){
+          outputArray[0] = currentSample[18] * 8;
+          outputArray[1] = 0;
+          outputArray[2] = 0;
+          outputArray[3] = 0;
+          outputArray[4] = 0;
+          outputArray[5] = 0;
+          outputArray[6] = 0;
+          outputArray[7] = 0;
+        } else if(currentSample[18] >= 0.125 && currentSample[18] < 0.25){
+          outputArray[0] = 1;
+          outputArray[1] = (currentSample[18] - 0.125) * 8;
+          outputArray[2] = 0;
+          outputArray[3] = 0;
+          outputArray[4] = 0;
+          outputArray[5] = 0;
+          outputArray[6] = 0;
+          outputArray[7] = 0;
+        } else if(currentSample[18] >= 0.25 && currentSample[18] < 0.375){
+          outputArray[0] = 1;
+          outputArray[1] = 1;
+          outputArray[2] = (currentSample[18] - 0.25) * 8;
+          outputArray[3] = 0;
+          outputArray[4] = 0;
+          outputArray[5] = 0;
+          outputArray[6] = 0;
+          outputArray[7] = 0;
+        } else if(currentSample[18] >= 0.375 && currentSample[18] < 0.5){
+          outputArray[0] = 1;
+          outputArray[1] = 1;
+          outputArray[2] = 1;
+          outputArray[3] = (currentSample[18] - 0.375) * 8;
+          outputArray[4] = 0;
+          outputArray[5] = 0;
+          outputArray[6] = 0;
+          outputArray[7] = 0;
+        } else if(currentSample[18] >= 0.5 && currentSample[18] < 0.625){
+          outputArray[0] = 1;
+          outputArray[1] = 1;
+          outputArray[2] = 1;
+          outputArray[3] = 1;
+          outputArray[4] = (currentSample[18] - 0.5) * 8;
+          outputArray[5] = 0;
+          outputArray[6] = 0;
+          outputArray[7] = 0;
+        } else if(currentSample[18] >= 0.625 && currentSample[18] < 0.75){
+          outputArray[0] = 1;
+          outputArray[1] = 1;
+          outputArray[2] = 1;
+          outputArray[3] = 1;
+          outputArray[4] = 1;
+          outputArray[5] = (currentSample[18] - 0.625) * 8;
+          outputArray[6] = 0;
+          outputArray[7] = 0;
+        } else if(currentSample[18] >= 0.75 && currentSample[18] < 0.875){
+          outputArray[0] = 1;
+          outputArray[1] = 1;
+          outputArray[2] = 1;
+          outputArray[3] = 1;
+          outputArray[4] = 1;
+          outputArray[5] = 1;
+          outputArray[6] = (currentSample[18] - 0.75) * 8;
+          outputArray[7] = 0;
+        } else {
+          outputArray[0] = 1;
+          outputArray[1] = 1;
+          outputArray[2] = 1;
+          outputArray[3] = 1;
+          outputArray[4] = 1;
+          outputArray[5] = 1;
+          outputArray[6] = 1;
+          outputArray[7] = (currentSample[18] - 0.875) * 8;
+        } 
+
+        // Y axis
+        if(currentSample[19] < 0.5){
+        	outputArray[8] = currentSample[19] * 2;
+        	outputArray[9] = 0;
+        } else {
+        	outputArray[8] = 1;
+        	outputArray[9] = (currentSample[19] - 0.5) * 2;
+        }
+
+        // Z axis
+        if(currentSample[20] < 0.5){
+        	outputArray[10] = currentSample[20] * 2;
+        	outputArray[11] = 0;
+        } else {
+        	outputArray[10] = 1;
+        	outputArray[11] = (currentSample[20] - 0.5) * 2;
+        }
+
+
+
+
          if(selectNN == 1){
-            var inputArray = new Array(10).fill(0);
-            inputArray[0] = currentSample[1] / 101;
+            var inputArray = new Array(12).fill(0);
+            inputArray[0] = currentSample[0] / 101;
       //      positionFeedArray[1] = sensorDataArray[1] / 101;
-            inputArray[1] = currentSample[3] / 101;
+            inputArray[1] = currentSample[2] / 101;
       //      positionFeedArray[3] = sensorDataArray[3] / 101;
-            inputArray[2] = currentSample[5] / 101;
-            inputArray[3] = currentSample[6] / 101;
-            inputArray[4] = currentSample[7] / 101;
+            inputArray[2] = currentSample[4] / 101;
+            inputArray[3] = currentSample[5] / 101;
+            inputArray[4] = currentSample[6] / 101;
       //      positionFeedArray[7] = sensorDataArray[7] / 101;
-            inputArray[5] = currentSample[9] / 101;
-            inputArray[6] = currentSample[10] / 101;
+            inputArray[5] = currentSample[8] / 101;
+            inputArray[6] = currentSample[9] / 101;
       //      positionFeedArray[10] = sensorDataArray[10] / 101;
-            inputArray[7] = currentSample[12] / 101;
-            inputArray[8] = currentSample[13] / 101;
+            inputArray[7] = currentSample[11] / 101;
+            inputArray[8] = currentSample[12] / 101;
       //      positionFeedArray[13] = sensorDataArray[13] / 101;
-            inputArray[9] = currentSample[15] / 101;
+            inputArray[9] = currentSample[14] / 101;
+            inputArray[10] = currentSample[16] / 360;
+            inputArray[11] = currentSample[17] / 360;
 
         } else if(selectNN == 2){
 
             var inputArray = new Array(12).fill(0);
-            inputArray[0] = currentSample[1] / 101;
+            inputArray[0] = currentSample[0] / 101;
       //      positionFeedArray[1] = sensorDataArray[1] / 101;
-            inputArray[1] = currentSample[3] / 101;
+            inputArray[1] = currentSample[2] / 101;
       //      positionFeedArray[3] = sensorDataArray[3] / 101;
-            inputArray[2] = currentSample[5] / 101;
-            inputArray[3] = currentSample[6] / 101;
-            inputArray[4] = currentSample[7] / 101;
+            inputArray[2] = currentSample[4] / 101;
+            inputArray[3] = currentSample[5] / 101;
+            inputArray[4] = currentSample[6] / 101;
       //      positionFeedArray[7] = sensorDataArray[7] / 101;
-            inputArray[5] = currentSample[9] / 101;
-            inputArray[6] = currentSample[10] / 101;
+            inputArray[5] = currentSample[8] / 101;
+            inputArray[6] = currentSample[9] / 101;
       //      positionFeedArray[10] = sensorDataArray[10] / 101;
-            inputArray[7] = currentSample[12] / 101;
-            inputArray[8] = currentSample[13] / 101;
+            inputArray[7] = currentSample[11] / 101;
+            inputArray[8] = currentSample[12] / 101;
       //      positionFeedArray[13] = sensorDataArray[13] / 101;
-            inputArray[9] = currentSample[15] / 101;
-            inputArray[10] = currentSample[17] / 360;
-            inputArray[11] = currentSample[18] / 360;
+            inputArray[9] = currentSample[14] / 101;
+            inputArray[10] = currentSample[16] / 360;
+            inputArray[11] = currentSample[17] / 360;
         }
 
   
@@ -790,6 +827,8 @@ function trainNN(selectNN){
     }
 
     if(selectNN == 1){
+      console.log("TRAINING ON selectNN1");
+
         trainer.train(trainingData, {
             rate: 0.05,
          //   iterations: 15000,
@@ -808,6 +847,7 @@ function trainNN(selectNN){
         $('#export-btn').addClass("haveNN");
 
     } else if(selectNN == 2){
+      console.log("TRAINING ON selectNN2");
 
           trainer2.train(trainingData, {
             rate: 0.05,
@@ -826,9 +866,8 @@ function trainNN(selectNN){
         $('#activate2-btn').addClass("haveNN");
         $('#export2-btn').addClass("haveNN");
     }
+
 }
-
-
 
 
 //end window on load

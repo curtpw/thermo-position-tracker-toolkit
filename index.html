@@ -11,26 +11,45 @@
   <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 
-    <title>CMI Absolute Position Lab - 10 temp</title>
+    <title>CMI Absolute Position Lab - SPLIT NN OUTPUT joystic/distance jig </title>
 
     <link type="text/css" rel="stylesheet" href="css/PoseEditor.css">
 
     <link type="text/css" rel="stylesheet" href="css/web-bluetooth.css">
 
+    <link rel="stylesheet" type="text/css" href="css/gamepad.css">
+
                               
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
-     <script type="text/javascript" src="js/sensorData_COMBINED_18s_9-26-17.js"></script> 
-     <script type="text/javascript" src="js/exported_NN_12-28-28__9-26-17_1.js"></script>
-     <script type="text/javascript" src="js/exported_NN_12-32-28-28__9-27-17.js"></script>
+    
+     <!-- data and data processing files, JSON or raw JS object -->
+     <script type="text/javascript" src="js/sensorData_COMBINED_18s_10-23-17.js"></script> 
+     <script type="text/javascript" src="js/exported_NN_12-7-7-12_10-24-17.js"></script>
+     <script type="text/javascript" src="js/exported_NN_12-4-4-12_10-24-17.js"></script>
 
+     <!-- get data from absolute position device -->
     <script type="text/javascript" src="js/sensor-web-bluetooth.js"></script>
 
     <!-- library for neural network -->
     <script src="js/synaptic.js"></script>
 
-    <!-- get web bluetooth data, collect data from model, apply to neural network -->
+    <!-- primary app code get web bluetooth data, collect data from model, apply to neural network -->
+    <!-- ahoy, there be global vars and magic numbers galore -->
     <script type="text/javascript" src="js/app-web-bluetooth.js"></script>
+
+    <!-- joystick and distance sensor jig -->
+    <script src="js/gamepad.js"></script>
+    <script src="js/gamepad_visualizer.js"></script>
+
+    <!-- code for trail visualization -->
+    <script type="text/javascript" src="js/util.js"></script>
+    <script src="js/threejs/build/three.min.js"></script>
+    <script src="js/threejs/controls/OrbitControls.js"></script>
+    <script src="js/threejs/Detector.js"></script>
+    <script src="js/threejs/libs/stats.min.js"></script> 
+ <!--   <script src="js/TrailRenderer.js"></script>
+    <script src="js/TrailApp.js"></script> -->
 
     <style>
     body{
@@ -40,7 +59,7 @@
       width: 38%;
       margin-top: 5px;
       display:inline-block;
-      height: 400px;
+     /* height: 400px; */
     }
     .master-pose-ui{
       display: inline-block;
@@ -349,34 +368,7 @@
 	    z-index: 9;
 	    color: white;
 	}
-	.heat-map .heat-item.heat-index1::after { content: "1"; }
-	.heat-map .heat-item.heat-index2::after { content: "2"; }
-	.heat-map .heat-item.heat-index3::after { content: "3"; }
-	.heat-map .heat-item.heat-index4::after { content: "4"; }
-	.heat-map .heat-item.heat-index5::after { content: "5"; }
-	.heat-map .heat-item.heat-index6::after { content: "6"; }
-	.heat-map .heat-item.heat-index7::after { content: "7"; }
-	.heat-map .heat-item.heat-index8::after { content: "8"; }
-	.heat-map .heat-item.heat-index9::after { content: "9"; }
-	.heat-map .heat-item.heat-index10::after { content: "10"; }
-	.heat-map .heat-item.heat-index11::after { content: "11"; }
-	.heat-map .heat-item.heat-index12::after { content: "12"; }
-	.heat-map .heat-item.heat-index13::after { content: "13"; }
-	.heat-map .heat-item.heat-index14::after { content: "14"; }
-	.heat-map .heat-item.heat-index15::after { content: "15"; }
-	.heat-map .heat-item.heat-index16::after { content: "16"; }
-	.heat-map .heat-item.heat-index17::after { content: "17"; }
-	.heat-map .heat-item.heat-index18::after { content: "18"; }
-	.heat-map .heat-item.heat-index19::after { content: "19"; }
-	.heat-map .heat-item.heat-index20::after { content: "20"; }
-	.heat-map .heat-item.heat-index21::after { content: "21"; }
-	.heat-map .heat-item.heat-index22::after { content: "22"; }
-	.heat-map .heat-item.heat-index23::after { content: "23"; }
-	.heat-map .heat-item.heat-index24::after { content: "24"; }
-	.heat-map .heat-item.heat-index25::after { content: "25"; }
-	.heat-map .heat-item.heat-index26::after { content: "26"; }
-	.heat-map .heat-item.heat-index27::after { content: "27"; }
-	.heat-map .heat-item.heat-index28::after { content: "28"; }
+
 
 	.coordinates{
 		color: white;
@@ -407,6 +399,26 @@
         z-index: 99;
 	}
 
+    div.gamepad-val-display{
+      width:32%;
+      display: inline-block;
+      margin-top:0px; margin-bottom: 0px;
+      font-size: 12px;
+      color:white;
+    }
+    div.gamepad-val-display span{
+      color: yellow;
+    }
+    #gameInfoThreeJS{
+  /*    display: inline-block;  
+      float: right; */
+    }
+
+    #coordinate-display-container{
+      display:inline-block;
+      float: right;
+    }
+
   </style>
 
 
@@ -416,9 +428,9 @@
   <body>
   	<!-- this circle moves across the screen and changes size according to 3D position coordinates -->
   	<div id="absolute-position1" class="absolute-position">&#9679;</div>
-    <div id="absolute-position2" class="absolute-position">&#9679;</div>
+ <!--   <div id="absolute-position2" class="absolute-position">&#9679;</div> -->
     <div id="absolute-position3" class="absolute-position">&#9679;</div>
-    <div id="absolute-position4" class="absolute-position">&#9679;</div>
+ <!--   <div id="absolute-position4" class="absolute-position">&#9679;</div>  -->
 
 <!-- WEB BLUETOOTH SENSOR SYNC TEST HTML -->
     <section class="sensor-container">
@@ -438,12 +450,21 @@
           <div class="data">OT13: <span class="object-temp-13-data"></span></div>
           <div class="data">OT14: <span class="object-temp-14-data"></span></div>
           <div class="data">OT15: <span class="object-temp-15-data"></span></div>
-      <!--    <div class="data">OT16: <span class="object-temp-16-data"></span></div> -->
-          <div class="data">ATav: <span class="ambient-temp-average-data"></span></div>
+          <div class="data">OT16: <span class="object-temp-16-data"></span></div>
+          <div class="data">OT17: <span class="object-temp-17-data"></span></div>
+          <div class="data">OT18: <span class="object-temp-18-data"></span></div>
+          <div class="data">OT19: <span class="object-temp-19-data"></span></div>
+          <div class="data">OT20: <span class="object-temp-20-data"></span></div>
+          <div class="data">OT21: <span class="object-temp-21-data"></span></div>
+          <div class="data">OT22: <span class="object-temp-22-data"></span></div>
 
+          <div class="data">Distance1: <span class="distance-1-data"></span></div>
+          <div class="data">Distance2: <span class="distance-2-data"></span></div>
+          <div class="data">Distance3: <span class="distance-3-data"></span></div>
+        
+          <div class="data">ATav: <span class="ambient-temp-average-data"></span></div>
           <div class="data">Pitch: <span class="accelerometer-pitch-data"></span></div> 
           <div class="data">Roll: <span class="accelerometer-roll-data"></span></div>
-          <div class="data">HR: <span class="raw-ppg-heart-data"></span></div>
         
       </div>
     </section>
@@ -495,7 +516,7 @@
 
         <div class="range-slider sample-size-div">
           <p class="range-label"># Samples</p>
-          <input class="range-slider__range sample-size" type="range" value="5" min="5" max="30" step="5">
+          <input class="range-slider__range sample-size" type="range" value="25" min="25" max="1000" step="25">
           <span class="range-slider__value">0</span>
         </div>
 
@@ -506,154 +527,64 @@
 
   	<div id="interface-controls">
   	   <!-- RANGE SLIDER JS AT BOTTOM -->
-  		    <div class='master-pose-ui'>
-  		      <p class='master-pose-ui-label'>Pose Selection:</p>
-  		      <button id="back-pose" class="master-pose btn"> < </button>
-  		      <button id="forward-pose" class="master-pose btn"> > </button>
-  		      <button id="go-pose" class="master-pose btn"> GO </button>
-  		      <input id="master-pose-input" class="master-pose" type="text" value="1">
-  		    </div>
+        <div class="gamepad gamepad-val-display xjoystick">X Joystick:<span></span></div>
+        <div class="gamepad gamepad-val-display yjoystick">Y Joystick:<span></span></div>
+        <div class="gamepad gamepad-val-display distance">Distance:<span></span></div>
 
-  		  <div class="range-slider master-pose">
-  		    <p class="range-label"><p>
-  		    <input class="range-slider__range master-pose" type="range" value="1" min="1" max="28" step="1" increment="5">
-  		    <span class="range-slider__value master-pose">1</span>
-  		  </div>
+     <!--   <div id="controllerContainer">
+            <div class="stickPointer leftStick">0</div>
+            <div class="stickPointer rightStick">0</div>
+        </div>
+        <script src="js/gamepad.js">gamepad();</script> -->
 
-        <div id="coordinates1" class="coordinates"></div>
-        <div id="coordinates2" class="coordinates"></div>
-        <div id="coordinates3" class="coordinates"></div>
-        <div id="coordinates4" class="coordinates"></div>
+            <!-- GAMEPAD API CODE AND DIAGNOSTICS -->
+            <div id="gamepadDisplayDiv">
+            <div id="buttonNeverPressedDiv">Please press a button on any gamepad.</div>
+            <div id="buttonPressedDiv" style="display:none;">
+                <table id="gamepadStateTable" cellspacing="0">
+                    <tr><td colspan="5">Gamepad State Table</td></tr>
+                    <tr><th>Index</th><th>Timestamp</th><th>Mapping</th><th>Connected</th><th>Id</th></tr>
+                    <tr id="gpStateTableRow0"></tr>
+                    <tr id="gpStateTableRow1"></tr>
+                </table>
+
+                <br />
+
+                <table class="gpTable">
+                    <tr><td id="gp0Cell" class="gpTableCell gpTableCellUnConnected">Gamepad not connected</td></tr>
+                    <tr><td id="gp1Cell" class="gpTableCell gpTableCellUnConnected">Gamepad not connected</td></tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- END GAMEPAD -->
+
+
   		   
   	</div>
 
-	<div id="heat-map1" class="heat-map">
-		<!-- row 1 hands up -->
-		<div class="heat-row heat-row-1">
-			<div class="heat-block heat-block1">
-				<div class="heat-item heat-item-back heat-item1 heat-index1 NN1">&#9679;
-				<div class="heat-item heat-item-front heat-item2 heat-index2 NN1">&#9679;</div></div>
-			</div>
-			<div class="heat-block heat-block2">
-				<div class="heat-item heat-item-back heat-item1 heat-index3 NN1">&#9679;
-				<div class="heat-item heat-item-front heat-item2 heat-index4 NN1">&#9679;</div></div>
-			</div>
-			<div class="heat-block heat-block3">
-				<div class="heat-item heat-item-back heat-item1 heat-index5 NN1">&#9679;
-				<div class="heat-item heat-item-front heat-item2 heat-index6 NN1">&#9679;</div></div>
-			</div>
-			<div class="heat-block heat-block4">
-				<div class="heat-item heat-item-back heat-item1 heat-index7 NN1">&#9679;
-				<div class="heat-item heat-item-front heat-item2 heat-index8 NN1">&#9679;</div></div>
-			</div>
-		</div>
-		<!-- row 2 hands out -->
-		<div class="heat-row heat-row-2">
-			<div class="heat-block heat-block1">
-				<div class="heat-item heat-item-back heat-item1 heat-index9 NN1">&#9679;
-				<div class="heat-item heat-item-middle heat-item3 heat-index10 NN1">&#9679;
-				<div class="heat-item heat-item-front heat-item2 heat-index11 NN1">&#9679;</div></div></div>
-			</div>
-			<div class="heat-block heat-block2">
-				<div class="heat-item heat-item-back heat-item1 heat-index12 NN1">&#9679;
-				<div class="heat-item heat-item-middle heat-item3 heat-index13 NN1">&#9679;
-				<div class="heat-item heat-item-front heat-item2 heat-index14 NN1">&#9679;</div></div></div>
-			</div>
-			<div class="heat-block heat-block3">
-				<div class="heat-item heat-item-back heat-item1 heat-index15 NN1">&#9679;
-				<div class="heat-item heat-item-middle heat-item3 heat-index16 NN1">&#9679;
-				<div class="heat-item heat-item-front heat-item2 heat-index17 NN1">&#9679;</div></div></div>
-			</div>
-			<div class="heat-block heat-block4">
-				<div class="heat-item heat-item-back heat-item1 heat-index18 NN1">&#9679;
-				<div class="heat-item heat-item-middle heat-item3 heat-index19 NN1">&#9679;
-				<div class="heat-item heat-item-front heat-item2 heat-index20 NN1">&#9679;</div></div></div>
-			</div>
-		</div>
-		<!-- row 3 hands down -->
-		<div class="heat-row heat-row-3">
-			<div class="heat-block heat-block1">
-				<div class="heat-item heat-item-back heat-item1 heat-index21 NN1">&#9679;
-				<div class="heat-item heat-item-front heat-item2 heat-index22 NN1">&#9679;</div></div>
-			</div>
-			<div class="heat-block heat-block2">
-				<div class="heat-item heat-item-back heat-item1 heat-index23 NN1">&#9679;
-				<div class="heat-item heat-item-front heat-item2 heat-index24 NN1">&#9679;</div></div>
-			</div>
-			<div class="heat-block heat-block3">
-				<div class="heat-item heat-item-back heat-item1 heat-index25 NN1">&#9679;
-				<div class="heat-item heat-item-front heat-item2 heat-index26 NN1">&#9679;</div></div>
-			</div>
-			<div class="heat-block heat-block4">
-				<div class="heat-item heat-item-back heat-item1 heat-index27 NN1">&#9679;
-				<div class="heat-item heat-item-front heat-item2 heat-index28 NN1">&#9679;</div></div>
-			</div>
-		</div>
-	</div>
+    <div id="coordinate-display-container">
+          <div id="coordinates1" class="coordinates"></div>
+     <!--   <div id="coordinates2" class="coordinates"></div> -->
+          <div id="coordinates3" class="coordinates"></div>
+    <!--    <div id="coordinates4" class="coordinates"></div>  -->
+    </div>
 
-  <div id="heat-map2" class="heat-map">
-    <!-- row 1 hands up -->
-    <div class="heat-row heat-row-1">
-      <div class="heat-block heat-block1">
-        <div class="heat-item heat-item-back heat-item1 heat-index1 NN2">&#9679;
-        <div class="heat-item heat-item-front heat-item2 heat-index2 NN2">&#9679;</div></div>
-      </div>
-      <div class="heat-block heat-block2">
-        <div class="heat-item heat-item-back heat-item1 heat-index3 NN2">&#9679;
-        <div class="heat-item heat-item-front heat-item2 heat-index4 NN2">&#9679;</div></div>
-      </div>
-      <div class="heat-block heat-block3">
-        <div class="heat-item heat-item-back heat-item1 heat-index5 NN2">&#9679;
-        <div class="heat-item heat-item-front heat-item2 heat-index6 NN2">&#9679;</div></div>
-      </div>
-      <div class="heat-block heat-block4">
-        <div class="heat-item heat-item-back heat-item1 heat-index7 NN2">&#9679;
-        <div class="heat-item heat-item-front heat-item2 heat-index8 NN2">&#9679;</div></div>
-      </div>
+
+
+
+
+<!-- threejs trail visualization -->
+<!--
+    <div class="projectBox gameProjectBox  gameInfo" id="gameInfoThreeJS"> 
+        <div class="vSpace0"></div>
+        <span class="overviewTextBold">Coordinate Space Time Series Trail Visualization</span>
+        <div class="dividerLine"></div>
+        <div class="vSpace2"></div>
+        <div class="alignCenter" width="700" height="512" style="width: 956px; height: 768px; border: 2px solid white;" id="renderingContainer"></div>
+        <div class="vSpace2"></div>
     </div>
-    <!-- row 2 hands out -->
-    <div class="heat-row heat-row-2">
-      <div class="heat-block heat-block1">
-        <div class="heat-item heat-item-back heat-item1 heat-index9 NN2">&#9679;
-        <div class="heat-item heat-item-middle heat-item3 heat-index10 NN2">&#9679;
-        <div class="heat-item heat-item-front heat-item2 heat-index11 NN2">&#9679;</div></div></div>
-      </div>
-      <div class="heat-block heat-block2">
-        <div class="heat-item heat-item-back heat-item1 heat-index12 NN2">&#9679;
-        <div class="heat-item heat-item-middle heat-item3 heat-index13 NN2">&#9679;
-        <div class="heat-item heat-item-front heat-item2 heat-index14 NN2">&#9679;</div></div></div>
-      </div>
-      <div class="heat-block heat-block3">
-        <div class="heat-item heat-item-back heat-item1 heat-index15 NN2">&#9679;
-        <div class="heat-item heat-item-middle heat-item3 heat-index16 NN2">&#9679;
-        <div class="heat-item heat-item-front heat-item2 heat-index17 NN2">&#9679;</div></div></div>
-      </div>
-      <div class="heat-block heat-block4">
-        <div class="heat-item heat-item-back heat-item1 heat-index18 NN2">&#9679;
-        <div class="heat-item heat-item-middle heat-item3 heat-index19 NN2">&#9679;
-        <div class="heat-item heat-item-front heat-item2 heat-index20 NN2">&#9679;</div></div></div>
-      </div>
-    </div>
-    <!-- row 3 hands down -->
-    <div class="heat-row heat-row-3">
-      <div class="heat-block heat-block1">
-        <div class="heat-item heat-item-back heat-item1 heat-index21 NN2">&#9679;
-        <div class="heat-item heat-item-front heat-item2 heat-index22 NN2">&#9679;</div></div>
-      </div>
-      <div class="heat-block heat-block2">
-        <div class="heat-item heat-item-back heat-item1 heat-index23 NN2">&#9679;
-        <div class="heat-item heat-item-front heat-item2 heat-index24 NN2">&#9679;</div></div>
-      </div>
-      <div class="heat-block heat-block3">
-        <div class="heat-item heat-item-back heat-item1 heat-index25 NN2">&#9679;
-        <div class="heat-item heat-item-front heat-item2 heat-index26 NN2">&#9679;</div></div>
-      </div>
-      <div class="heat-block heat-block4">
-        <div class="heat-item heat-item-back heat-item1 heat-index27 NN2">&#9679;
-        <div class="heat-item heat-item-front heat-item2 heat-index28 NN2">&#9679;</div></div>
-      </div>
-    </div>
-  </div>
+  -->
 
 
   <div id="dump-print"></div>
@@ -668,16 +599,7 @@
 
 <script>
 
-var angleData = {shoulder:{x: 0, y: 0, z: 0}, 
-         elbow:{x: 0, y: 0, z: 0}, 
-         hand:{x: 0, y: 0, z: 0}};
 
-
-var numPositions = 28;
-
-
-var masterPoserTotal = numPositions;
-var currentPose = 1;
 
 var altMasterPoseUIFlag = false; //we have multiple UI directed towards changing master pose which we must update without redundant pose transforms
 
@@ -703,12 +625,16 @@ var altMasterPoseUIFlag = false; //we have multiple UI directed towards changing
 $( document ).ready(function() {
       console.log( "ready!" );
 
+      //Gamepad API stuff
+    InitGamepad();
+
       //add pose coordinate position sample count html
-      for(var i=1;i<numPositions+1;i++){ $('div.console').append( '<p class="pose' + i +'">&nbsp;&nbsp;P'+i+':<span>0</span></p><div class="console-p'+i+'><span>0</span></div>'); }
+    //  for(var i=1;i<numPositions+1;i++){ $('div.console').append( '<p class="pose' + i +'">&nbsp;&nbsp;P'+i+':<span>0</span></p><div class="console-p'+i+'><span>0</span></div>'); }
 
       rangeSlider();
 
       /*********** MASTER POSE CHANGE *****************/
+      /*
       $('#back-pose').click(function() {
           if(currentPose > 0){
             currentPose = currentPose - 1;
@@ -759,7 +685,7 @@ $( document ).ready(function() {
           }else{altMasterPoseUIFlag = false;}
 
       });
-
+*/
       
 
       //RANGE SLIDER EVENT HANDLER
