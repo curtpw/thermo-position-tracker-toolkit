@@ -212,11 +212,16 @@ window.onload = function(){
         ambientTempAverageElement.innerHTML = state.ambientTemp;
     }
 
-    if(state.ambientTemp){
+    if(state.battery){
         var batteryElement = document.getElementsByClassName('battery-data')[0];
         batteryElement.innerHTML = state.battery;
     }
     
+    if(state.apds9960){
+        var apds9960Element = document.getElementsByClassName('apds9960-data')[0];
+        apds9960Element.innerHTML = state.apds9960;
+    }
+
 
   }
 

@@ -213,7 +213,9 @@ class ControllerWebBluetooth{
     let accelerometerY      = (event.target.value.getUint8(11) / 100) - 1;
     let accelerometerZ      = (event.target.value.getUint8(12) / 100) - 1;
 
-    let batteryVal          = (event.target.value.getUint8(13) / 100) - 1;
+    let batteryVal          = (event.target.value.getUint8(13) );
+
+    let apds9960Val         = (event.target.value.getUint8(14) );
 
     state.objectTemp[19] = objectTemp20;
     state.objectTemp[20] = objectTemp21;
@@ -233,6 +235,8 @@ class ControllerWebBluetooth{
     state.accZ = accelerometerZ;
 
     state.battery = batteryVal;
+
+    state.apds9960 = apds9960Val;
 
    // console.log("Distance1: " + state.distance1);
   }
