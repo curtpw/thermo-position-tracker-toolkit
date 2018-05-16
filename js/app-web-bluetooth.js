@@ -719,7 +719,7 @@ function trainNN(selectNN){
 // HERE IS WHERE WE SPLIT SPLAT SLICE DICE !!!!!!!!!!!!!!!!!!!!!!!!!
 // HERE IS WHERE WE SPLIT SPLAT SLICE DICE !!!!!!!!!!!!!!!!!!!!!!!!!
 // HERE IS WHERE WE SPLIT SPLAT SLICE DICE !!!!!!!!!!!!!!!!!!!!!!!!!
-        var outputArray = new Array(26).fill(0);     // 1-6 --> X   7-8 --> Y  9-10 --> Z
+        var outputArray = new Array(12).fill(0);     // 1-6 --> X   7-8 --> Y  9-10 --> Z
 
         //!!!  JOYSTICK JIG DATA !!!
      //   outputArray[0] = currentSample[18];
@@ -844,79 +844,79 @@ function trainNN(selectNN){
 
             var inputArray = new Array(26).fill(0);
         	//object temp
-            inputArray[0] = (sensorDataArray[0] - 70) / (101 - 70);
+            inputArray[0] = (currentSample[0] - 70) / (101 - 70);
       //      inputArray[1] = sensorDataArray[1] / 101;  //for hand
-            inputArray[1] = (sensorDataArray[2] - 70) / (101 - 70);
-            inputArray[2] = (sensorDataArray[3] - 70) / (101 - 70);
-            inputArray[3] = (sensorDataArray[4] - 70) / (101 - 70);
-            inputArray[4] = (sensorDataArray[5] - 70) / (101 - 70);
-            inputArray[5] = (sensorDataArray[6] - 70) / (101 - 70);
-            inputArray[6] = (sensorDataArray[7] - 70) / (101 - 70);
-            inputArray[7] = (sensorDataArray[8] - 70) / (101 - 70);
-            inputArray[8] = (sensorDataArray[9] - 70) / (101 - 70);
-            inputArray[9] = (sensorDataArray[10] - 70) / (101 - 70);
-            inputArray[10] = (sensorDataArray[11] - 70) / (101 - 70);
-            inputArray[11] = (sensorDataArray[12] - 70) / (101 - 70);
-            inputArray[12] = (sensorDataArray[13] - 70) / (101 - 70);
-            inputArray[13] = (sensorDataArray[14] - 70) / (101 - 70);
-            inputArray[14] = (sensorDataArray[15] - 70) / (101 - 70);
-            inputArray[15] = (sensorDataArray[16] - 70) / (101 - 70);
-            inputArray[16] = (sensorDataArray[17] - 70) / (101 - 70);
-            inputArray[17] = (sensorDataArray[18] - 70) / (101 - 70);
-            inputArray[18] = (sensorDataArray[19] - 70) / (101 - 70);
+            inputArray[1] = (currentSample[2] - 70) / (101 - 70);
+            inputArray[2] = (currentSample[3] - 70) / (101 - 70);
+            inputArray[3] = (currentSample[4] - 70) / (101 - 70);
+            inputArray[4] = (currentSample[5] - 70) / (101 - 70);
+            inputArray[5] = (currentSample[6] - 70) / (101 - 70);
+            inputArray[6] = (currentSample[7] - 70) / (101 - 70);
+            inputArray[7] = (currentSample[8] - 70) / (101 - 70);
+            inputArray[8] = (currentSample[9] - 70) / (101 - 70);
+            inputArray[9] = (currentSample[10] - 70) / (101 - 70);
+            inputArray[10] = (currentSample[11] - 70) / (101 - 70);
+            inputArray[11] = (currentSample[12] - 70) / (101 - 70);
+            inputArray[12] = (currentSample[13] - 70) / (101 - 70);
+            inputArray[13] = (currentSample[14] - 70) / (101 - 70);
+            inputArray[14] = (currentSample[15] - 70) / (101 - 70);
+            inputArray[15] = (currentSample[16] - 70) / (101 - 70);
+            inputArray[16] = (currentSample[17] - 70) / (101 - 70);
+            inputArray[17] = (currentSample[18] - 70) / (101 - 70);
+            inputArray[18] = (currentSample[19] - 70) / (101 - 70);
           //  inputArray[19] = (sensorDataArray[20] - 70) / (101 - 70);  //for hand
-            inputArray[19] = (sensorDataArray[21] - 70) / (101 - 70);
+            inputArray[19] = (currentSample[21] - 70) / (101 - 70);
 
             //distance
-            inputArray[20] = sensorDataArray[22] / 1020;
-            inputArray[21] = sensorDataArray[23] / 1020;
-            inputArray[22] = sensorDataArray[24] / 1020;
+            inputArray[20] = (currentSample[22] / 1020);
+            inputArray[21] = (currentSample[23] / 1020);
+            inputArray[22] = (currentSample[24] / 1020);
 
             //pitch & roll
-            inputArray[23] = sensorDataArray[25] / 360;
-            inputArray[24] = sensorDataArray[26] / 360;
+            inputArray[23] = (currentSample[25] / 360);
+            inputArray[24] = (currentSample[26] / 360);
 
             //average ambient temp
-            inputArray[25] = (sensorDataArray[27] - 70) / (101 - 70);
+            inputArray[25] = ( (currentSample[27] - 70) / (101 - 70) );
 
         } else if(selectNN == 2){
 
             var inputArray = new Array(26).fill(0);
-        	//object temp
-            inputArray[0] = (sensorDataArray[0] - 70) / (101 - 70);
+          //object temp
+            inputArray[0] = (currentSample[0] - 70) / (101 - 70);
       //      inputArray[1] = sensorDataArray[1] / 101;  //for hand
-            inputArray[1] = (sensorDataArray[2] - 70) / (101 - 70);
-            inputArray[2] = (sensorDataArray[3] - 70) / (101 - 70);
-            inputArray[3] = (sensorDataArray[4] - 70) / (101 - 70);
-            inputArray[4] = (sensorDataArray[5] - 70) / (101 - 70);
-            inputArray[5] = (sensorDataArray[6] - 70) / (101 - 70);
-            inputArray[6] = (sensorDataArray[7] - 70) / (101 - 70);
-            inputArray[7] = (sensorDataArray[8] - 70) / (101 - 70);
-            inputArray[8] = (sensorDataArray[9] - 70) / (101 - 70);
-            inputArray[9] = (sensorDataArray[10] - 70) / (101 - 70);
-            inputArray[10] = (sensorDataArray[11] - 70) / (101 - 70);
-            inputArray[11] = (sensorDataArray[12] - 70) / (101 - 70);
-            inputArray[12] = (sensorDataArray[13] - 70) / (101 - 70);
-            inputArray[13] = (sensorDataArray[14] - 70) / (101 - 70);
-            inputArray[14] = (sensorDataArray[15] - 70) / (101 - 70);
-            inputArray[15] = (sensorDataArray[16] - 70) / (101 - 70);
-            inputArray[16] = (sensorDataArray[17] - 70) / (101 - 70);
-            inputArray[17] = (sensorDataArray[18] - 70) / (101 - 70);
-            inputArray[18] = (sensorDataArray[19] - 70) / (101 - 70);
+            inputArray[1] = (currentSample[2] - 70) / (101 - 70);
+            inputArray[2] = (currentSample[3] - 70) / (101 - 70);
+            inputArray[3] = (currentSample[4] - 70) / (101 - 70);
+            inputArray[4] = (currentSample[5] - 70) / (101 - 70);
+            inputArray[5] = (currentSample[6] - 70) / (101 - 70);
+            inputArray[6] = (currentSample[7] - 70) / (101 - 70);
+            inputArray[7] = (currentSample[8] - 70) / (101 - 70);
+            inputArray[8] = (currentSample[9] - 70) / (101 - 70);
+            inputArray[9] = (currentSample[10] - 70) / (101 - 70);
+            inputArray[10] = (currentSample[11] - 70) / (101 - 70);
+            inputArray[11] = (currentSample[12] - 70) / (101 - 70);
+            inputArray[12] = (currentSample[13] - 70) / (101 - 70);
+            inputArray[13] = (currentSample[14] - 70) / (101 - 70);
+            inputArray[14] = (currentSample[15] - 70) / (101 - 70);
+            inputArray[15] = (currentSample[16] - 70) / (101 - 70);
+            inputArray[16] = (currentSample[17] - 70) / (101 - 70);
+            inputArray[17] = (currentSample[18] - 70) / (101 - 70);
+            inputArray[18] = (currentSample[19] - 70) / (101 - 70);
           //  inputArray[19] = (sensorDataArray[20] - 70) / (101 - 70);  //for hand
-            inputArray[19] = (sensorDataArray[21] - 70) / (101 - 70);
+            inputArray[19] = (currentSample[21] - 70) / (101 - 70);
 
             //distance
-            inputArray[20] = sensorDataArray[22] / 1020;
-            inputArray[21] = sensorDataArray[23] / 1020;
-            inputArray[22] = sensorDataArray[24] / 1020;
+            inputArray[20] = (currentSample[22] / 1020);
+            inputArray[21] = (currentSample[23] / 1020);
+            inputArray[22] = (currentSample[24] / 1020);
 
             //pitch & roll
-            inputArray[23] = sensorDataArray[25] / 360;
-            inputArray[24] = sensorDataArray[26] / 360;
+            inputArray[23] = (currentSample[25] / 360);
+            inputArray[24] = (currentSample[26] / 360);
 
             //average ambient temp
-            inputArray[25] = (sensorDataArray[27] - 70) / (101 - 70);
+            inputArray[25] = ( (currentSample[27] - 70) / (101 - 70) );
         }
 
   
