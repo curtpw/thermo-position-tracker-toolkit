@@ -200,9 +200,9 @@ class ControllerWebBluetooth{
     let objectTemp21        = ( event.target.value.getUint8(1) / 8) + 70;
     let objectTemp22        = ( event.target.value.getUint8(2) / 8) + 70;
 
-    let distance1           = ( event.target.value.getUint8(3) );
-    let distance2           = ( event.target.value.getUint8(4) );
-    let distance3           = ( event.target.value.getUint8(5) );
+    let distance1           = ( event.target.value.getUint8(3) * 4);
+    let distance2           = ( event.target.value.getUint8(4) * 4);
+    let distance3           = ( event.target.value.getUint8(5) * 4);
 
     let accelerometerPitch  = (event.target.value.getUint8(6) * 1.4);
     let accelerometerRoll   = (event.target.value.getUint8(7) * 1.4);
