@@ -1,0 +1,556 @@
+    if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+
+        var TrailTypes = Object.freeze(
+        {
+            Basic : 1,
+            Textured : 2
+        } );
+
+        var TrailShapes = Object.freeze(
+        {
+            Plane : 1,
+            Star : 2,
+            Circle : 3
+        } );
+
+        var scene, gui, renderer, clock;
+        var camera, pointLight, ambientLight, controls, stats;
+        
+        var options;
+        var starPoints, circlePoints, planePoints;
+        var trailTarget;
+        var trailHeadGeometry, trail, lastTrailUpdateTime, lastTrailResetTime;
+        var trailMaterial, baseTrailMaterial, texturedTrailMaterial;
+
+        var sampleCanvasWidth = 956;
+        var sampleCanvasHeight = 768;
+
+        var screenWidth = $(window).width(); 
+        var screenHeight = $(window).height(); 
+
+
+        window.addEventListener( "load", function load( event ) {
+
+            window.removeEventListener( "load", load, false );
+            init();
+
+        }, false );
+
+
+        function init() {
+
+            simulationPause = false;
+            clock = new THREE.Clock();
+            lastTrailUpdateTime = performance.now();
+            lastTrailResetTime = performance.now();
+
+            getScreenDimensions();
+
+            initTrailOptions();
+            initScene();
+            initGUI();
+            initListeners();
+            initLights();
+
+            initSceneGeometry( function() {
+
+                initTrailRenderers( function() {
+
+                    initRenderer();
+                    initControls();
+                  //  initStats();
+                    animate();
+
+                });
+
+            } );
+
+        }
+
+        function initTrailOptions() {
+
+             options = {
+
+                headRed : 1.0,
+                headGreen : 0.0,
+                headBlue : 1.0,
+                headAlpha : 0.75,
+
+                tailRed : 0.0,
+                tailGreen : 0.0,
+                tailBlue : 0.0,
+                tailAlpha : 0.35,
+
+                trailLength : 400,
+                trailType : TrailTypes.Textured,
+                trailShape : TrailShapes.Star,
+
+              //  textureTileFactorS : 10.0,
+                textureTileFactorS : 0.8,
+                textureTileFactorT : 0.8,
+
+                dragTexture : false,
+                depthWrite : false,
+
+                pauseSim : false
+            };
+
+        }
+
+        function initGUI() {
+/*
+            gui = new dat.GUI();  
+
+            gui.add( options, 'trailType', { Basic : TrailTypes.Basic, Textured : TrailTypes.Textured } ).name( "Trail type" ).onChange( function() {
+
+                    options.trailType = parseInt( options.trailType );
+                    updateTrailType();
+
+                } );
+
+            gui.add( options, 'trailShape', 
+                { 
+                    Plane : TrailShapes.Plane, 
+                    Star : TrailShapes.Star, 
+                    Circle : TrailShapes.Circle 
+                } ).name( "Trail shape" ).onChange( function() {
+
+                    options.trailShape = parseInt( options.trailShape );
+                    updateTrailShape();
+
+                } );
+
+            gui.add(options, "trailLength", 0, 1000).name( "Trail length" ).onChange( updateTrailLength );  
+            gui.add( options, 'depthWrite' ).name( "Depth write" ).onChange( updateTrailDepthWrite );
+            gui.add( options, 'pauseSim' ).name( "Pause simulation" );
+            
+            var headColor = gui.addFolder( "Head color" );
+            headColor.add( options, "headRed", 0.0, 1.0, 0.025 ).name( "Red" ).onChange( updateTrailColors );
+            headColor.add( options, "headGreen", 0.0, 1.0, 0.025 ).name( "Green" ).onChange( updateTrailColors );
+            headColor.add( options, "headBlue", 0.0, 1.0, 0.025 ).name( "Blue" ).onChange( updateTrailColors );
+            headColor.add( options, "headAlpha", 0.0, 1.0, 0.025 ).name( "Alpha" ).onChange( updateTrailColors );
+
+            var tailColor = gui.addFolder( "Tail color" );
+            tailColor.add( options, "tailRed", 0.0, 1.0, 0.025 ).name( "Red" ).onChange( updateTrailColors );
+            tailColor.add( options, "tailGreen", 0.0, 1.0, 0.025 ).name( "Green" ).onChange( updateTrailColors );
+            tailColor.add( options, "tailBlue", 0.0, 1.0, 0.025 ).name( "Blue" ).onChange( updateTrailColors );
+            tailColor.add( options, "tailAlpha", 0.0, 1.0, 0.025 ).name( "Alpha" ).onChange( updateTrailColors );
+
+            var textureOptions = gui.addFolder( "Texture options" );
+            textureOptions.add( options, "textureTileFactorS", 0, 25).name( "Texture Tile S" ).onChange( updateTrailTextureTileSize );
+            textureOptions.add( options, "textureTileFactorT", 0, 25).name( "Texture Tile T" ).onChange( updateTrailTextureTileSize );
+            textureOptions.add( options, 'dragTexture' ).name( "Drag Texture" ).onChange( updateTrailTextureDrag );
+
+            gui.domElement.parentNode.style.zIndex = 100;
+*/
+        }
+
+        function initListeners() {
+
+            window.addEventListener( 'resize', onWindowResize, false );
+
+            }
+
+        function initRenderer() {
+
+            renderer = new THREE.WebGLRenderer();
+            renderer.setSize( screenWidth, screenHeight );
+            renderer.setClearColor( 0x000000 );
+          //  renderer.setClearColor( 0xFFFFFF );
+            renderer.sortObjects = false;
+            rendererContainer = document.getElementById( 'renderingContainer' );
+            rendererContainer.appendChild( renderer.domElement );
+
+        }
+
+        function initLights() {
+
+            ambientLight = new THREE.AmbientLight( 0x777777 );
+            scene.add( ambientLight );
+
+            pointLight = new THREE.PointLight( 0xffffff, 2, 1000, 1 );
+            pointLight.position.set( 0, 40, 0 );
+            pointLight.castShadow = true;
+            pointLight.shadowCameraNear = 1;
+            pointLight.shadowCameraFar = 1000;
+            pointLight.shadowDarkness = .8;
+            // pointLight.shadowCameraVisible = true;
+            pointLight.shadowMapWidth = 4096;
+            pointLight.shadowMapHeight = 2048;
+            pointLight.shadowBias = - 0.5;
+            scene.add( pointLight );
+
+        }
+
+        function initSceneGeometry( onFinished ) {
+            
+            initTrailHeadGeometries();
+            initTrailTarget();
+
+            if( onFinished ) {
+
+                onFinished();
+
+            }
+
+        }
+
+        function initTrailHeadGeometries() {
+
+            planePoints = [];
+            planePoints.push( new THREE.Vector3( -14.0, 4.0, 0.0 ), new THREE.Vector3( 0.0, 4.0, 0.0 ), new THREE.Vector3( 14.0, 4.0, 0.0 ) );
+
+            circlePoints = [];
+            var twoPI = Math.PI * 2;
+            var index = 0;
+            var scale = 10.0;
+            var inc = twoPI / 32.0;
+
+            for ( var i = 0; i <= twoPI + inc; i+= inc )  {
+
+                var vector = new THREE.Vector3();
+                vector.set( Math.cos( i ) * scale, Math.sin( i ) * scale, 0 );
+                circlePoints[ index ] = vector;
+                index ++;
+
+            }
+
+            starPoints = [];
+            starPoints.push( new THREE.Vector3 (  0,  16 ) );
+            starPoints.push( new THREE.Vector3 (  4,  4 ) );
+            starPoints.push( new THREE.Vector3 (  16,  4 ) );
+            starPoints.push( new THREE.Vector3 (  8, -4 ) );
+            starPoints.push( new THREE.Vector3 (  12, -16 ) );
+            starPoints.push( new THREE.Vector3 (   0, -8 ) );
+            starPoints.push( new THREE.Vector3 ( -12, -16 ) );
+            starPoints.push( new THREE.Vector3 ( -8, -4 ) );
+            starPoints.push( new THREE.Vector3 ( -16,  4 ) );
+            starPoints.push( new THREE.Vector3 ( -4,  4 ) );
+            starPoints.push( new THREE.Vector3 (  0,  16 ) );
+
+        }
+
+        function initTrailTarget() {
+
+            var starShape = new THREE.Shape( starPoints );
+
+            var extrusionSettings = {
+                amount: 2, size: 2, height: 1, curveSegments: 3,
+                bevelThickness: 1, bevelSize: 2, bevelEnabled: false,
+                material: 0, extrudeMaterial: 1
+            };
+
+            var starGeometry = new THREE.ExtrudeGeometry( starShape, extrusionSettings );
+
+            var trailTargetMaterial = new THREE.MeshPhongMaterial( {
+               // color: 0xa0adaf,
+                color: 0xffffff,
+                shininess: 10,
+                specular: 0x111111,
+                shading: THREE.SmoothShading
+            } );
+
+            trailTarget = new THREE.Mesh( starGeometry, trailTargetMaterial );
+            trailTarget.position.set( 0, 0, 0 );
+            trailTarget.scale.multiplyScalar( 1 );
+            trailTarget.receiveShadow = false;
+
+            scene.add( trailTarget );
+
+        }
+
+        function initTrailRenderers( callback ) {
+
+            trail = new THREE.TrailRenderer( scene, false );    
+
+            baseTrailMaterial = THREE.TrailRenderer.createBaseMaterial();       
+
+            var textureLoader = new THREE.TextureLoader();
+            textureLoader.load( "textures/sparkle4.jpg", function( tex ) {
+
+                tex.wrapS = THREE.RepeatWrapping;
+                tex.wrapT = THREE.RepeatWrapping;
+
+                texturedTrailMaterial = THREE.TrailRenderer.createTexturedMaterial();
+                texturedTrailMaterial.uniforms.texture.value = tex;
+
+                continueInitialization();
+
+                if ( callback ) {
+
+                    callback();
+
+                }
+
+            });
+
+            function continueInitialization() {;
+
+                setTrailShapeFromOptions();
+                setTrailTypeFromOptions();
+                initializeTrail();
+
+            }
+            
+        }
+
+        function updateTrailLength() {
+
+            initializeTrail();
+
+        }
+
+        function setTrailTypeFromOptions() {
+
+            switch ( options.trailType ) {
+
+                case TrailTypes.Basic:
+
+                    trailMaterial = baseTrailMaterial;
+
+                break;
+                case TrailTypes.Textured:
+
+                    trailMaterial = texturedTrailMaterial;
+                    
+                break;
+
+            }
+
+        }
+
+        function updateTrailType() {
+
+            setTrailTypeFromOptions();
+            initializeTrail();
+
+        }
+
+        function setTrailShapeFromOptions() {
+
+            switch ( options.trailShape ) {
+
+                case TrailShapes.Plane:
+
+                    trailHeadGeometry = planePoints;
+
+                break;
+                case TrailShapes.Star:
+
+                    trailHeadGeometry = starPoints;
+
+                break;
+                case TrailShapes.Circle:
+
+                    trailHeadGeometry = circlePoints;
+
+                break;
+
+            }
+
+        }
+
+        function updateTrailShape() {
+
+            setTrailShapeFromOptions();
+            initializeTrail();
+
+        }
+
+        function updateTrailTextureDrag() {
+
+            initializeTrail();
+
+        }
+
+        function updateTrailTextureTileSize() {
+
+            trailMaterial.uniforms.textureTileFactor.value.set( options.textureTileFactorS, options.textureTileFactorT );
+
+        }
+
+        function updateTrailColors() {
+
+            trailMaterial.uniforms.headColor.value.set( options.headRed, options.headGreen, options.headBlue, options.headAlpha );
+            trailMaterial.uniforms.tailColor.value.set( options.tailRed, options.tailGreen, options.tailBlue, options.tailAlpha );
+
+        }
+
+        function updateTrailDepthWrite() {
+
+            trailMaterial.depthWrite = options.depthWrite;
+
+        }
+
+        var updateTrailTarget = function updateTrailTarget() {
+
+            var tempQuaternion = new THREE.Quaternion();
+
+            var baseForward = new THREE.Vector3( 0, 0, -1 );
+            var tempForward = new THREE.Vector3();
+            var tempUp = new THREE.Vector3();
+
+            var tempRotationMatrix= new THREE.Matrix4();
+            var tempTranslationMatrix= new THREE.Matrix4();
+
+            var currentTargetPosition = new THREE.Vector3();
+            var lastTargetPosition = new THREE.Vector3();
+
+            var currentDirection = new THREE.Vector3();
+            var lastDirection= new THREE.Vector3();
+
+            var lastRotationMatrix = new THREE.Matrix4();
+
+            return function updateTrailTarget( time ) {
+
+                if ( time - lastTrailUpdateTime > 10 ) {
+
+                    trail.advance();
+                    lastTrailUpdateTime = time;
+
+                } else {
+
+                    trail.updateHead();
+
+                }
+
+                /*if ( time - lastTrailResetTime > 2000 ) {
+
+                    trail.reset();
+                    lastTrailResetTime = time;
+
+                }*/
+
+                tempRotationMatrix.identity();
+                tempTranslationMatrix.identity();
+
+                var scaledTime = time * .001;
+                var areaScale = 100;
+
+                lastTargetPosition.copy( currentTargetPosition );
+
+                currentTargetPosition.x = Math.sin( scaledTime ) * areaScale;  
+                currentTargetPosition.y = Math.sin( scaledTime * 1.1 ) * areaScale;
+                currentTargetPosition.z = Math.sin( scaledTime * 1.6 ) * areaScale;
+
+            //    console.log("currentTargetPosition original x/y/z: " + currentTargetPosition.x + "  " + currentTargetPosition.y + "  " + currentTargetPosition.z);
+
+
+                //CHANGE TO NEURAL NETWORK ABSOLUTE POSITION SCORES
+                if(xCoordinate != 0 || yCoordinate != 0 || zCoordinate != 0){
+                    currentTargetPosition.x = (xCoordinate * 2) - 100;
+                    currentTargetPosition.y = ( (100 - yCoordinate) * 2) - 100;
+                    currentTargetPosition.z = (zCoordinate * 3) - 100;
+                }
+
+          //      console.log("currentTargetPosition new x/y/z: " + currentTargetPosition.x + "  " + currentTargetPosition.y + "  " + currentTargetPosition.z);
+
+
+                lastDirection.copy( currentDirection );
+
+                currentDirection.copy( currentTargetPosition );
+                currentDirection.sub( lastTargetPosition );
+                currentDirection.normalize();
+
+                tempUp.crossVectors( currentDirection, baseForward );
+                var angle = baseForward.angleTo( currentDirection );
+
+                if( Math.abs( angle ) > .01 && tempUp.lengthSq() > .001 ) {
+
+                    tempQuaternion.setFromUnitVectors( baseForward, currentDirection );
+                    tempQuaternion.normalize();
+                    tempRotationMatrix.makeRotationFromQuaternion( tempQuaternion );
+                    lastRotationMatrix.copy( tempRotationMatrix );                          
+
+                }
+                
+                tempTranslationMatrix.makeTranslation ( currentTargetPosition.x, currentTargetPosition.y, currentTargetPosition.z );
+                tempTranslationMatrix.multiply( tempRotationMatrix );  
+
+                trailTarget.matrix.identity();
+                trailTarget.applyMatrix( tempTranslationMatrix );
+                trailTarget.updateMatrixWorld();
+
+            }
+
+        }();
+
+        function initializeTrail() {
+
+            trail.initialize( trailMaterial, Math.floor(options.trailLength), options.dragTexture ? 1.0 : 0.0, 0, trailHeadGeometry, trailTarget );
+            updateTrailColors();
+            updateTrailTextureTileSize();
+            updateTrailDepthWrite();
+            trail.activate();
+
+        }
+
+        function initScene() {
+
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera( 45, 1.0, 2, 2000 );
+            scene.add( camera );
+            resetCamera();
+
+        }
+
+        function initControls() {
+
+            controls = new THREE.OrbitControls( camera, renderer.domElement );
+            controls.target.set( 0, 0, 0 );
+            controls.update();
+
+            }
+
+        function onWindowResize() {
+
+            getScreenDimensions();
+            renderer.setSize( screenWidth, screenHeight );
+            resetCamera();
+
+        }
+
+        function getScreenDimensions() {
+
+            //screenWidth = window.innerWidth;
+            //screenHeight = window.innerHeight;
+
+            screenWidth = sampleCanvasWidth;
+            screenHeight = sampleCanvasHeight;
+
+        }
+
+        function resetCamera() {
+
+            getScreenDimensions();
+            camera.aspect = screenWidth / screenHeight;
+            camera.updateProjectionMatrix();
+            camera.position.set( 0, 200, 400 );
+            camera.lookAt( scene.position );
+
+        }
+
+        function animate() {
+
+            requestAnimationFrame( animate );
+            update();
+            render();
+
+        }
+
+        function update() {
+
+            var time = performance.now();
+
+            if ( ! options.pauseSim )updateTrailTarget( time );
+
+            controls.update();
+            //stats.update();
+
+        }
+
+        function render() {
+
+            renderer.render( scene, camera );
+
+        }
