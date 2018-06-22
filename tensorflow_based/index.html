@@ -12,12 +12,14 @@
 
   <link rel="stylesheet" href="css/normalize.css">
   <link rel="stylesheet" href="css/main.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@0.11.6"></script>
+
 </head>
 
 <body>
-  <!--[if lte IE 9]>
-    <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
-  <![endif]-->
+
+  <div id="output"></div>
 
   <!-- Add your site or application content here -->
   <p>Thermo Position Tracking Tensorflow Test Toy Implementation.</p>
@@ -26,6 +28,214 @@
   <script>window.jQuery || document.write('<script src="js/vendor/jquery-3.3.1.min.js"><\/script>')</script>
   <script src="js/plugins.js"></script>
   <script src="js/main.js"></script>
+
+  <script>
+
+    const exportedSensorData = [["82.0","81.9","83.5","79.8","80.1","82.8","84.0","81.6","81.3","83.3","80.9","82.5","81.6","80.3","78.5","80.1","79.5","79.5","78.1","79.1","81.3","81.3","176.0","488.0","436.0","203.0","270.2","85.5","0.0000","0.5746","0.5016"],
+["82.0","81.9","83.5","79.8","80.1","82.8","84.0","81.6","81.3","83.3","80.9","82.5","81.6","80.3","78.5","80.1","79.5","79.5","78.1","79.1","81.3","81.3","176.0","488.0","436.0","203.0","270.2","85.5","0.0000","0.5746","0.5016"],
+["81.9","81.9","83.6","79.8","80.1","82.6","83.9","81.6","81.0","83.0","81.0","82.6","81.6","80.3","78.6","80.1","79.4","79.5","78.1","79.1","81.1","81.0","176.0","496.0","460.0","205.8","270.2","85.5","0.0000","0.7016","0.4794"],
+["81.9","81.9","83.6","79.8","80.1","82.6","83.9","81.6","81.0","83.0","81.0","82.6","81.6","80.3","78.6","80.1","79.4","79.5","78.1","79.1","81.1","81.0","176.0","496.0","460.0","205.8","270.2","85.5","0.0000","0.7016","0.4794"],
+["81.6","82.0","83.6","80.0","80.4","82.8","83.9","81.6","81.5","83.4","80.9","82.5","81.4","80.1","78.4","80.0","79.1","79.3","78.1","79.1","81.1","80.6","164.0","536.0","456.0","203.0","289.8","85.5","0.0000","0.9619","0.4286"]];  //array length 31
+
+function normalizeSensorData(sample){
+
+  let normalized = new Array(sample.length);
+
+  for(let i = 0; i < sample.length; i++){
+    if(i < 22){
+        normalized[i] = (sample[i] - 60) / (101 - 60);
+    } else if(i < 25){
+        normalized[i] = sample[i] / 1020;
+    } else {
+        normalized[i] = sample[i] / 360;
+    }
+  }
+
+    return normalized;
+}
+
+
+    // Solve for XOR
+    const LEARNING_RATE = 0.1;
+    const EPOCHS = 200;
+
+    // Define the training data
+ //   const xs = [[0,0],[0,1],[1,0],[1,1]];
+  //  const ys = [0,1,1,0];
+    let numSamples = exportedSensorData.length;
+    let xs = new Array(numSamples);
+    let ys = new Array(numSamples);
+    
+    
+    for(let i = 0; i < numSamples; i++){
+
+      xs[i] = [exportedSensorData[i][0], exportedSensorData[i][1], exportedSensorData[i][2], 
+              exportedSensorData[i][3], exportedSensorData[i][4], exportedSensorData[i][5], 
+              exportedSensorData[i][6], exportedSensorData[i][7], exportedSensorData[i][8], 
+              exportedSensorData[i][9], exportedSensorData[i][10], exportedSensorData[i][11], 
+              exportedSensorData[i][12], exportedSensorData[i][13], exportedSensorData[i][14], 
+              exportedSensorData[i][15], exportedSensorData[i][16], exportedSensorData[i][17], 
+              exportedSensorData[i][18], exportedSensorData[i][19], exportedSensorData[i][20], 
+              exportedSensorData[i][21], exportedSensorData[i][22], exportedSensorData[i][23], 
+              exportedSensorData[i][24], exportedSensorData[i][25], exportedSensorData[i][26]];
+
+      //normalize raw device sensor data
+      xs[i] = normalizeSensorData(xs[i]);
+
+    //  ys[i] = [exportedSensorData[i][28], exportedSensorData[i][29], exportedSensorData[i][30]]; 
+
+      ys[i] = 1;
+
+    }
+    console.log("xs: " + xs);
+    console.log("xy: " + ys);
+
+    /****
+
+//xs = [[0,0],[0,1],[1,0],[1,1]];
+//ys = [0,1,1,0];
+
+    // Instantiate the training tensors
+ //   let xTrain = tf.tensor2d(xs, [4,2]);
+    let xTrain = tf.tensor2d(xs, [numSamples,27]);
+    let yTrain = tf.oneHot(tf.tensor1d(ys).toInt(), 2);
+
+    // Define the model.
+    const model = tf.sequential();
+
+    // Set up the network layers
+  //  model.add(tf.layers.dense({units: 5, activation: 'sigmoid', inputShape: [2]}));
+
+    model.add(tf.layers.dense({units: 30, activation: 'sigmoid', inputShape: [27]}));
+    model.add(tf.layers.dense({units: 2, activation: 'softmax', outputShape: [2]}));
+
+    // Define the optimizer
+    const optimizer = tf.train.adam(LEARNING_RATE);
+
+    // Init the model
+    model.compile({
+        optimizer: optimizer,
+        loss: 'categoricalCrossentropy',
+        metrics: ['accuracy'],
+    });
+
+    // Train the model
+    const history = model.fit(xTrain, yTrain, {
+      epochs: EPOCHS,
+      validationData: [xTrain, yTrain],
+    }).then(()=>{
+
+      // Try the model on a value
+      let testInputSample = ["83.4","83.9","83.8","80.4","81.0","83.5","84.8","83.8","81.0","82.6","80.9","83.4","83.6","81.5","79.8","80.9","80.4","80.3","79.4","80.0","82.1","81.8","240.0","384.0","372.0","212.8","259.0"];
+      testInputSample = normalizeSensorData(testInputSample);
+
+     //  const input = tf.tensor2d([0,1], [1, 2]);
+       const input = tf.tensor2d(testInputSample, [1, 27]);
+
+
+
+       const predictOut = model.predict(input);
+       const logits = Array.from(predictOut.dataSync());
+       console.log('prediction', logits, predictOut.argMax(-1).dataSync()[0]);
+    });
+****/
+
+    /******************************* LSTM EXAMPLE *************************************/
+
+    async function predictfuture(){
+
+    ////////////////////////
+    // create fake data
+    ///////////////////////
+
+    var xs = tf.tensor3d([
+        [[1],[1],[0]],
+        [[1],[1],[0]],
+        [[1],[1],[0]],
+        [[1],[1],[0]],
+        [[1],[1],[0]],
+        [[1],[1],[0]]
+    ]);
+    xs.print();
+
+    var ys = tf.tensor3d([
+        [[1],[1],[0]],
+        [[1],[1],[0]],
+        [[1],[1],[0]],
+        [[1],[1],[0]],
+        [[1],[1],[0]],
+        [[1],[1],[0]]
+    ]);
+    ys.print();
+
+
+    ////////////////////////
+    // create model w/ layers api
+    ///////////////////////
+
+    console.log('Creating Model...');
+
+    /*
+
+    model design:
+
+                    i(xs)   h       o(ys)
+    batch_size  ->  *       *       * -> batch_size
+    timesteps   ->  *       *       * -> timesteps
+    input_dim   ->  *       *       * -> input_dim
+
+
+    */
+
+    const model = tf.sequential();
+
+    //hidden layer
+    const hidden = tf.layers.lstm({
+        units: 3,
+        activation: 'sigmoid',
+        inputShape: [3 , 1],
+        returnSequences: true
+    });
+    model.add(hidden);
+
+    //output layer
+    const output = tf.layers.lstm({
+        units: 1, 
+        activation: 'sigmoid',
+        returnSequences: true
+    })
+    model.add(output);
+
+    //compile
+    const sgdoptimizer = tf.train.sgd(0.1)
+    model.compile({
+        optimizer: sgdoptimizer,
+        loss: tf.losses.meanSquaredError
+    });
+
+    ////////////////////////
+    // train & predict
+    ///////////////////////
+
+    console.log('Training Model...');
+
+    await model.fit(xs, ys, { epochs: 200 }).then(() => {
+
+        console.log('Training Complete!');
+        console.log('Creating Prediction...');
+
+        const inputs = tf.tensor3d( [[[1],[1],[0]]] );
+        let outputs = model.predict(inputs);
+        outputs.print();
+
+    });
+
+}
+
+predictfuture();
+
+
+  </script>
 
 
 </body>
